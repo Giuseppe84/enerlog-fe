@@ -1,18 +1,10 @@
-import axios, { AxiosRequestConfig } from 'axios';
+import axios from 'axios';
 const backendUrl = process.env.NEXT_PUBLIC_API_URL;
-
 
 const api = axios.create({
   baseURL: backendUrl,
-  withCredentials: true, // per inviare anche i cookie se necessario
+  withCredentials: true, // essenziale per cookie cross-site
 });
 
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
+// Non serve Authorization se usi solo cookie
 export default api;

@@ -2,7 +2,7 @@
 import { useContext, useState, ReactNode, useEffect } from 'react';
 import { AuthContext, AuthContextType, User } from './AuthContextObject';
 
-import{settingsAPI} from "@/api/settings"
+import{userAPI} from "@/api/user"
 
 export default function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -24,7 +24,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('token', newToken);
     setToken(newToken);
     setIsAuthenticated(true);
-        await settingsAPI.addDevice();
+        await userAPI.addDevice();
     
   };
 

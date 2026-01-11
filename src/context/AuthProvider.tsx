@@ -1,56 +1,61 @@
 'use client'
 
-import { useContext, useState, ReactNode, useEffect } from 'react'
-import { AuthContext, AuthContextType, User } from './AuthContextObject'
-import { settingsAPI } from '@/api/settings'
+import { useEffect, useState, ReactNode } from 'react'
+import { AuthContext, User } from './AuthContextObject'
+import { userAPI } from '@/api/user'
+
 
 export default function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
-  const [token, setToken] = useState<string | null>(null)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const isAuthenticated = !!user
 
-  // Controlla token memorizzato all'avvio
+  // 🔥 CHECK SESSIONE ALL’AVVIO (refresh / reload)
   useEffect(() => {
-    const storedToken = localStorage.getItem('token')
-    if (storedToken) {
-      setToken(storedToken)
-      setIsAuthenticated(true)
-      // Qui puoi fetchare i dati dell'utente dal backend usando il token
-      fetchUserData(storedToken)
+    const loadUser = async () => {
+      try {
+        //console.log('ddd');
+        const res = await userAPI.getMe() // GET /auth/me
+        setUser(res)
+      } catch (err) {
+        setUser(null)
+      } finally {
+        setLoading(false)
+      }
     }
+
+    loadUser()
   }, [])
 
-  const fetchUserData = async (token: string) => {
+  // 🔐 Login: il backend ha già settato il cookie
+  const login = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/me`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      if (!res.ok) throw new Error('Failed to fetch user')
-      const data: User = await res.json()
-      setUser(data)
-    } catch (err) {
-      console.error(err)
-      logout()
+      console.log('ddd')
+      const res = await userAPI.getMe()
+      setUser(res)
+    } catch {
+      setUser(null)
     }
   }
 
-  const login = async (newToken: string) => {
-    localStorage.setItem('token', newToken)
-    setToken(newToken)
-    setIsAuthenticated(true)
-    await settingsAPI.addDevice() // come nel tuo vecchio progetto
-    await fetchUserData(newToken)
-  }
-
-  const logout = () => {
-    localStorage.removeItem('token')
-    setToken(null)
+  // 🚪 Logout
+  const logout = async () => {
+    try {
+      await  userAPI.logout()
+    } catch {}
     setUser(null)
-    setIsAuthenticated(false)
   }
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, token, login, logout }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isAuthenticated,
+        loading,
+        login,
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   )

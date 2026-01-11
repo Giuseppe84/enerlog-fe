@@ -20,3 +20,9 @@ export const status = async () => {
   const response = await api.post('/auth/2fa/verify');
   return response.data;
 };
+
+export const verify = async (tempToken:String, otp: String) =>{
+  console.log(tempToken,  otp);
+   const response = await api.post('/auth/2fa/verify', { tempToken,  otp},);
+  return response.data;
+}

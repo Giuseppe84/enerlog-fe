@@ -1,6 +1,6 @@
 "use client"
 import * as React from "react"
-import { ChevronsUpDown, Plus } from "lucide-react"
+import { ChevronsUpDown, Plus, Route } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -77,6 +77,12 @@ export function TeamSwitcher({
                 <Plus className="size-4" />
               </div>
               <div className="text-muted-foreground font-medium">Add team</div>
+            </DropdownMenuItem>
+                 <DropdownMenuItem className="gap-2 p-2">
+              <div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
+                <Route className="size-4" />
+              </div>
+              <div className="text-muted-foreground font-medium">Settings</div>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

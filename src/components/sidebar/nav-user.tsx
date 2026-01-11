@@ -27,6 +27,9 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
+import Link from "next/link"
+import { userAPI } from "@/api/user"
+
 export function NavUser({
   user,
 }: {
@@ -96,9 +99,17 @@ export function NavUser({
                 <Bell />
                 Notifications
               </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Link href="/settings" className="flex items-center gap-2"> <Bell />
+                  Settings
+                </Link>
+              </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={async () => {
+              await userAPI.logout();
+              window.location.reload(); // ricarica la pagina per "resettare" lo stato
+            }}>
               <LogOut />
               Log out
             </DropdownMenuItem>
