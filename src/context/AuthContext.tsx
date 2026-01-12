@@ -1,48 +1,63 @@
 "use client"
-import { useContext, useState, ReactNode, useEffect } from 'react';
-import { AuthContext, AuthContextType, User } from './AuthContextObject';
 
-import{userAPI} from "@/api/user"
+import { useContext, useState, ReactNode, useEffect } from "react"
+import { AuthContext } from "./AuthContextObject"
+import { userAPI } from "@/api/user"
 
 export default function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  
-  // Verifica se esiste già un token al caricamento
+  const [user, setUser] = useState<any | null>(null)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [loading, setLoading] = useState(true)
+
+  // 🔁 Verifica sessione all'avvio (COOKIE)
   useEffect(() => {
-    const storedToken = localStorage.getItem('token');
-    if (storedToken) {
-      setToken(storedToken);
-      setIsAuthenticated(true);
-      // Qui potresti fare una chiamata API per ottenere i dati dell'utente
-      // usando il token memorizzato
+    const checkAuth = async () => {
+      try {
+        const res = await userAPI.getMe() // GET /auth/me
+        setUser(res.data)
+        setIsAuthenticated(true)
+      } catch (err) {
+        setUser(null)
+        setIsAuthenticated(false)
+      } finally {
+        setLoading(false)
+      }
     }
-  }, []);
 
-  const login = async (newToken: string) => {
-    localStorage.setItem('token', newToken);
-    setToken(newToken);
-    setIsAuthenticated(true);
-        await userAPI.addDevice();
-    
-  };
+    checkAuth()
+  }, [])
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    setToken(null);
-    setUser(null);
-    setIsAuthenticated(false);
-  };
+  // 🔐 Login → cookie già settato dal backend
+  const login = async () => {
+    await userAPI.addDevice()
+    const res = await userAPI.getMe()
+    setUser(res.data)
+    setIsAuthenticated(true)
+  }
+
+  // 🚪 Logout → cancella cookie lato server
+  const logout = async () => {
+    await userAPI.logout()
+    setUser(null)
+    setIsAuthenticated(false)
+  }
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, token, login, logout }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isAuthenticated,
+        loading,
+        login,
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
-  );
+  )
 }
 
-// ⚡ Named export per il hook
+// Hook
 export const useAuth = () => {
   const context = useContext(AuthContext)
   if (!context) throw new Error("useAuth must be used within AuthProvider")

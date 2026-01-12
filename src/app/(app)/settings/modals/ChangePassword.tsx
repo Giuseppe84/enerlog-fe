@@ -8,7 +8,7 @@ import { Formik, Form, FormikHelpers } from "formik";
 import * as Yup from "yup";
 import { useState, useEffect } from "react";
 import { userAPI } from "@/api/user";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner"
 
 
 const PasswordSchema = Yup.object().shape({
@@ -21,24 +21,22 @@ const PasswordSchema = Yup.object().shape({
 
 export function ChangePasswordModal({ user, setIsOpen, isOpen }) {
 
-  const { toast, dismiss, toasts } = useToast();
+
 
     const [passwordSuccess, setPasswordSuccess] = useState('');
     const [passwordError, setPasswordError] = useState('');
     const handleSuccess = () => {
-        toast({
-            title: "Operazione completata",
-            description: "La password è stata aggiornata con successo",
-            variant: "success",
-        });
+        toast.success(
+            "Operazione completata",
+            { description: "La password è stata modificata con successo" }
+        );
     };
 
-    const handleError = () => {
-        toast({
-            title: "Errore",
-            description: "Si è verificato un errore durante l'aggiornamento",
-            variant: "destructive",
-        });
+    const handleError = (message: string | null) => {
+        toast.error("Errore",
+            {
+                description: message || "Si è verificato un errore durante l'aggiornamento"
+            });
     };
 
 
@@ -46,18 +44,18 @@ export function ChangePasswordModal({ user, setIsOpen, isOpen }) {
         setPasswordError('');
         setPasswordSuccess('');
         try {
-           const res = await userAPI.updatePassword( {oldPassword: values.currentPassword, newPassword: values.newPassword });
+            const res = await userAPI.updatePassword({ oldPassword: values.currentPassword, newPassword: values.newPassword });
 
             setPasswordSuccess('Password modificata con successo');
             handleSuccess();
             resetForm();
             setIsOpen(false);
         } catch (error: any) {
-                 handleError();
+            handleError(null);
             console.log(error);
             setPasswordError(error.response?.data?.message || 'Errore durante il cambio password');
         } finally {
-       
+
             setSubmitting(false);
         }
     };

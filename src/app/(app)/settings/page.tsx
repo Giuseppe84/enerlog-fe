@@ -1,7 +1,14 @@
 'use client'
 import { useState, useEffect } from "react";
 import { userAPI, UserSettings } from "@/api/user";
-
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
@@ -89,21 +96,42 @@ export default function Page() {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="flex p-5 h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
+
+        <header className="flex flex-col gap-2 h-auto shrink-0 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
+          {/* Breadcrumb e trigger */}
           <div className="flex items-center gap-2 px-4">
             <SidebarTrigger className="-ml-1" />
             <Separator
               orientation="vertical"
               className="mr-2 data-[orientation=vertical]:h-4"
             />
-            <div>
-              <h2 className="text-3xl font-bold tracking-tight">Impostazioni</h2>
-              <p className="text-muted-foreground">
-                Gestisci il tuo account e le preferenze dell'applicazione
-              </p>
-            </div>
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem className="hidden md:block">
+                  <BreadcrumbLink href="#">
+                    Settings
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator className="hidden md:block" />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>Data Fetching</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+          </div>
+
+          {/* Titolo e descrizione sotto breadcrumb */}
+          <div className="px-4">
+            <h2 className="text-3xl font-bold tracking-tight">Impostazioni</h2>
+            <p className="text-muted-foreground">
+              Gestisci il tuo account e le preferenze dell'applicazione
+            </p>
           </div>
         </header>
+
+
+
+
         <div className="space-y-6 p-5">
 
 

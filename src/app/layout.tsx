@@ -2,7 +2,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inter } from "next/font/google";
 import AuthProvider from '@/context/AuthProvider'
-
+import { Toaster, toast } from 'sonner'
 import "./globals.css";
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
@@ -34,7 +34,11 @@ export default function RootLayout({
       >   
 
 
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+        <Toaster richColors position="top-center"/>
+            {children}
+        
+            </AuthProvider>
      
       </body>
     </html>

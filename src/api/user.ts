@@ -29,11 +29,9 @@ export interface UserSettings {
 
 export const userAPI = {
   getUser: async (): Promise<UserSettings> => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      throw new Error('Token non trovato');
-    }
-    const response = await api.get(`/auth/me`);
+
+    const response = await api.get(`/users/settings`);
+    console.log(response)
     return response.data;
   },
   getMe: async () => {
@@ -41,18 +39,17 @@ export const userAPI = {
     console.log(response)
     return response.data;
   },
-  
-  login : async (email: String, password: String) =>{
-        localStorage.clear();
-  
-    const response = await api.post(`/auth/login`,{email, password});
+
+  login: async (email: string, password: string) => {
+
+    const response = await api.post(`/auth/login`, { email, password });
     return response.data;
   },
- 
+
 
 
   logout: async () => {
-    localStorage.clear();
+
 
     const response = await api.post(
       `/auth/logout`,
@@ -63,70 +60,51 @@ export const userAPI = {
 
   updateSettings: async (newSettings: UserSettings): Promise<UserSettings> => {
     console.log('Updating settings with:', newSettings);
-    // delete newSettings.role; // Rimuovi email dalle impostazioni da inviare
-    const token = localStorage.getItem('token');
-    if (!token) {
-      throw new Error('Token non trovato');
-    }
+
     const response = await api.put(
       `/auth/profile/update`,
       newSettings);
     return response.data;
   },
 
-  updatePassword: async (oldPassword: String, newPassword: String): Promise<UserSettings> => {
-
-
-    const token = localStorage.getItem('token');
-    if (!token) {
-      throw new Error('Token non trovato');
-    }
-    return await api.post(
-      `/auth/change-password`,
-      { oldPassword, newPassword });
-
+  updatePassword: async ({
+    oldPassword,
+    newPassword,
+  }: {
+    oldPassword: string
+    newPassword: string
+  }): Promise<UserSettings> => {
+    return await api.post(`/auth/change-password`, { oldPassword, newPassword });
   },
 
-  updateEmail: async (newEmail: String): Promise<UserSettings> => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      throw new Error('Token non trovato');
-    }
+  updateEmail: async (newEmail: string): Promise<UserSettings> => {
 
     // Imposta l'Authorization header con il token se necessario
     return await api.post(
       `/auth/change-email`,
-      { newEmail }
+      {newEmail}
     );
   },
-  sendPhoneChangeCode: async (newPhone: String): Promise<UserSettings> => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      throw new Error('Token non trovato');
-    }
+  sendPhoneChangeCode: async (newPhone: string): Promise<UserSettings> => {
 
     // Imposta l'Authorization header con il token se necessario
     return await api.post(
       `/auth/phone/change/send`,
-      { newPhone }
+      newPhone
     );
   },
-  verifyPhoneChange: async (code: String): Promise<UserSettings> => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      throw new Error('Token non trovato');
-    }
+  verifyPhoneChange: async (code: string): Promise<UserSettings> => {
 
     // Imposta l'Authorization header con il token se necessario
     return await api.post(
       `/auth/phone/change/verify`,
-      { code }
+      code
     );
   },
 
-  verifyEmailChange: async (token: String): Promise<UserSettings> => {
+  verifyEmailChange: async (token: string): Promise<UserSettings> => {
     return await api.get("/auth/verify-email", {
-      params: { token }
+      params: token
     });
   },
   addDevice: async (): Promise<UserSettings> => {

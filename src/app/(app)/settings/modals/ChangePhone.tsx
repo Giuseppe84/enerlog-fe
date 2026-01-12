@@ -8,9 +8,8 @@ import { Formik, Form, FormikHelpers } from "formik";
 import * as Yup from "yup";
 import { useState } from "react";
 import { userAPI } from "@/api/user";
-import { useToast } from "@/hooks/use-toast";
 import { COUNTRY_CODES } from "@/data/country-codes";
-
+import { toast } from "sonner"
 
 
 const PhoneSchema = Yup.object().shape({
@@ -33,25 +32,23 @@ const PhoneSchema = Yup.object().shape({
 
 
 export function ChangePhoneModal({ user, setUser, setIsOpen, isOpen }) {
-  const { toast } = useToast();
+
   const [step, setStep] = useState<1 | 2>(1);
   const [phoneError, setPhoneError] = useState("");
 
   const handleSuccess = (message: string) => {
-    toast({
-      title: "Operazione completata",
-      description: message,
-      variant: "success",
-    });
+      toast.success(
+            "Operazione completata",
+            { description: "Il numero di telefono è stato modificato con successo" }
+        );
   };
 
-  const handleError = (message?: string) => {
-    toast({
-      title: "Errore",
-      description: message || "Si è verificato un errore",
-      variant: "destructive",
-    });
-  };
+    const handleError = (message: string | null) => {
+        toast.error("Errore",
+            {
+                description: message || "Si è verificato un errore durante l'aggiornamento"
+            });
+    };
 
   const handleResendCode = async (phoneNumber: string) => {
     try {

@@ -1,62 +1,58 @@
-'use client'
+"use client";
 
-import { useEffect, useState, ReactNode } from 'react'
-import { AuthContext, User } from './AuthContextObject'
-import { userAPI } from '@/api/user'
-
+import { useContext, useState, ReactNode, useEffect } from "react";
+import { AuthContext } from "./AuthContextObject";
+import { userAPI } from "@/api/user";
 
 export default function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
-  const isAuthenticated = !!user
+  const [user, setUser] = useState<any | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [loading, setLoading] = useState(true);
 
-  // 🔥 CHECK SESSIONE ALL’AVVIO (refresh / reload)
+  // 🔥 CHECK SESSION AL REFRESH
   useEffect(() => {
-    const loadUser = async () => {
+    const checkSession = async () => {
       try {
-        //console.log('ddd');
-        const res = await userAPI.getMe() // GET /auth/me
-        setUser(res)
+        const res = await userAPI.getMe(); // chiama /auth/me
+        setUser(res.data);
+        setIsAuthenticated(true);
       } catch (err) {
-        setUser(null)
+        setUser(null);
+        setIsAuthenticated(false);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    loadUser()
-  }, [])
+    checkSession();
+  }, []);
 
-  // 🔐 Login: il backend ha già settato il cookie
   const login = async () => {
-    try {
-      console.log('ddd')
-      const res = await userAPI.getMe()
-      setUser(res)
-    } catch {
-      setUser(null)
-    }
-  }
+    // il cookie viene già settato dal backend
+    const res = await userAPI.getMe();
+    setUser(res.data);
+    setIsAuthenticated(true);
+  };
 
-  // 🚪 Logout
   const logout = async () => {
-    try {
-      await  userAPI.logout()
-    } catch {}
-    setUser(null)
-  }
+    await userAPI.logout(); // endpoint che cancella cookie
+    setUser(null);
+    setIsAuthenticated(false);
+  };
+
+  // ⏳ evita redirect prematuri
+  if (loading) return null; // oppure spinner
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isAuthenticated,
-        loading,
-        login,
-        logout,
-      }}
-    >
+    <AuthContext.Provider value={{ user, loading, isAuthenticated, login, logout }}>
       {children}
     </AuthContext.Provider>
-  )
+  );
 }
+
+// Hook
+export const useAuth = () => {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
+  return ctx;
+};

@@ -7,29 +7,27 @@ import { Formik, Form, FormikHelpers } from "formik";
 import * as Yup from "yup";
 import { useState } from "react";
 import { userAPI } from "@/api/user";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner"
 
 const EmailSchema = Yup.object().shape({
   email: Yup.string().email("Formato email non valido").required("Email obbligatoria"),
 });
 
 export function ChangeEmailModal({ user, setIsOpen, isOpen }) {
-  const { toast } = useToast();
+
   const [emailError, setEmailError] = useState("");
 
   const handleSuccess = () => {
-    toast({
-      title: "Operazione completata",
-      description: "L'email è stata aggiornata con successo",
-      variant: "success",
-    });
+    toast.success(
+      "Operazione completata",
+      {description: "L'email è stata aggiornata con successo"}
+    );
+       setIsOpen(false);
   };
 
   const handleError = (message?: string) => {
-    toast({
-      title: "Errore",
-      description: message || "Si è verificato un errore durante l'aggiornamento",
-      variant: "destructive",
+    toast.error( "Errore",
+      {description: message || "Si è verificato un errore durante l'aggiornamento"
     });
   };
 
@@ -39,10 +37,10 @@ export function ChangeEmailModal({ user, setIsOpen, isOpen }) {
   ) => {
     setEmailError("");
     try {
-      const res = await userAPI.updateEmail({ newEmail: values.email });
+      const res = await userAPI.updateEmail(values.email);
 
       handleSuccess();
-      setIsOpen(false);
+   
     } catch (error: any) {
       console.log(error);
       setEmailError(error.response?.data?.message || "Errore durante il cambio email");
