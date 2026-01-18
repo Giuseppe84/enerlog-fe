@@ -49,21 +49,25 @@ const data = {
   ],
   navMain: [
     {
-      title: "Playground",
+      title: "Pratiche",
       url: "#",
       icon: SquareTerminal,
       isActive: true,
       items: [
         {
-          title: "History",
+          title: "Clienti",
+          url: "/clients",
+        },
+        {
+          title: "Soggetti",
+          url: "/subjects",
+        },
+        {
+          title: "Immobili",
           url: "#",
         },
         {
-          title: "Starred",
-          url: "#",
-        },
-        {
-          title: "Settings",
+          title: "Attività",
           url: "#",
         },
       ],

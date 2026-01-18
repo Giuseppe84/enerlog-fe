@@ -1,0 +1,215 @@
+{
+  "dashboard": {
+    "overview": "Overview",
+    "kpis": {
+      "totalRevenue": "Total Revenue",
+      "activeWorks": "Active Works",
+      "pendingPayments": "Pending Payments",
+      "activeClients": "Active Clients",
+      "fromLastMonth": "from last month",
+      "sinceLastHour": "since last hour"
+    },
+    "userActivity": {
+      "title": "User Activity"
+    },
+    "recentWorks": {
+      "title": "Recent Works",
+      "description": "You have made 265 sales this month."
+    },
+    "pendingPayments": {
+      "title": "Pending Payments",
+      "description": "You have 12 pending payments."
+    }
+  },
+  "workDetail": {
+    "status": {
+      "toStart": "To Start",
+      "inProgress": "In Progress",
+      "completed": "Completed",
+      "canceled": "Canceled",
+      "undefined": "Undefined"
+    },
+    "date": {
+      "notSpecified": "Not specified"
+    },
+    "error": {
+      "loadingWork": "Error loading work:"
+    },
+    "amount": "Amount",
+    "creationDate": "Creation Date",
+    "client": "Client",
+    "property": {
+      "title": "Property",
+      "noPropertyAssociated": "No property associated"
+    }
+  },
+  "clientDetail": {
+    "workStatus": {
+      "toStart": "To Start",
+      "inProgress": "In Progress",
+      "completed": "Completed",
+      "canceled": "Canceled"
+    },
+    "paymentStatus": {
+      "pending": "Pending",
+      "completed": "Completed",
+      "failed": "Failed"
+    },
+    "error": {
+      "loadingData": "Error loading data:"
+    },
+    "common": {
+      "loading": "Loading..."
+    },
+    "notFound": "Client not found",
+    "taxCode": "Tax Code / VAT Number",
+    "subjects": "subject_one: subject\nsubject_other: subjects",
+    "totalWorks": "Total works",
+    "completedWorks": "Completed",
+    "works": "Works",
+    "payments": "Payments",
+    "tabs": {
+      "demographics": "Profile",
+      "works": "Works ({{count}})",
+      "subjects": "Subjects ({{count}})",
+      "payments": "Payments ({{count}})"
+    },
+    "demographics": {
+      "title": "Personal Information",
+      "companyName": "Company Name",
+      "taxCode": "Tax Code / VAT Number",
+      "email": "Email",
+      "phone": "Phone",
+      "registrationDate": "Registration Date",
+      "status": "Status",
+      "active": "Active",
+      "legalForm": "Company Type",
+      "reaNumber": "REA Number",
+      "chamberCode": "Chamber of Commerce",
+      "sdiCode": "SDI Code",
+      "legalAddress": "Registered Office Address",
+      "city": "Registered Office City",
+      "pecEmail": "PEC Email",
+      "physical": {
+        "name": "Full Name",
+        "taxCode": "Tax Code",
+        "address": "Residence Address"
+      }
+    },
+    "associatedWorks": {
+      "title": "Associated Works",
+      "noWorks": "No associated works"
+    },
+    "associatedSubjects": {
+      "title": "Associated Subjects",
+      "samePerson": "Same person",
+      "noSubjects": "No associated subjects"
+    },
+    "paymentsSection": {
+      "title": "Payments",
+      "noPayments": "No payments recorded"
+    }
+  },
+  "payments": {
+    "title": "Payments",
+    "kpis": {
+      "monthlyIncome": {
+        "title": "Monthly Income",
+        "description": "Total income for the current month"
+      },
+      "pendingAmount": {
+        "title": "Pending Amount",
+        "description": "Total amount of pending payments"
+      },
+      "totalPayments": {
+        "title": "Total Payments",
+        "description": "Total number of recorded payments"
+      },
+      "paymentMethods": {
+        "title": "Payment Methods",
+        "description": "Number of payment methods used"
+      }
+    },
+    "charts": {
+      "paymentMethods": {
+        "title": "Payment Methods"
+      }
+    },
+    "recentPayments": {
+      "title": "Recent Payments",
+      "table": {
+        "client": "Client",
+        "amount": "Amount",
+        "date": "Date"
+      }
+    },
+    "partiallyPaidWorks": {
+      "title": "Partially Paid Works",
+      "table": {
+        "work": "Work",
+        "client": "Client",
+        "remaining": "Remaining"
+      }
+    },
+    "error": {
+      "loadingData": "Error loading data:"
+    }
+  },
+  "properties": {
+    "name": "Name",
+    "city": "City",
+    "propertyType": "Property Type",
+    "address": "Address",
+    "title": "Properties",
+    "update": "Update Property",
+    "subtitle": "Manage your properties",
+    "addProperty": "Add Property",
+    "searchPlaceholder": "Search property...",
+    "listTitle": "Property List",
+    "enum.residential": "Residential",
+    "enum.commercial": "Commercial",
+    "enum.industrial": "Industrial",
+    "enum.land": "Land",
+    "enum.agricultural": "Agricultural",
+    "enum.other": "Other",
+    "table.address": "Address",
+    "table.city": "City",
+    "table.subject": "Subject",
+    "table.creationDate": "Creation Date",
+    "table.actions": "Actions",
+    "dialog.editProperty": "Edit Property",
+    "dialog.addProperty": "Add Property",
+    "dialog.formDescription": "Fill in the fields to add or edit a property.",
+    "form.client": "Client",
+    "form.selectClient": "Select Client",
+    "tabs.general": "General",
+    "tabs.energy": "Energy Data",
+    "tabs.cadastral": "Cadastral Data",
+    "form.postalCode": "ZIP Code",
+    "form.province": "Province",
+    "form.address": "Address",
+    "form.city": "City",
+    "form.cadastralCode": "Cadastral Code",
+    "form.sheet": "Sheet",
+    "form.parcel": "Parcel",
+    "form.subordinates": "Sub-units",
+    "form.latitude": "Latitude",
+    "form.longitude": "Longitude",
+    "form.selectFromMap": "Select from Map",
+    "form.subject": "Subject",
+    "form.selectSubject": "Select subject",
+    "form.search": "Search",
+    "form.validation.addressRequired": "Address is required",
+    "form.validation.cityRequired": "City is required",
+    "form.validation.subjectRequired": "Subject is required",
+    "dialog.cancel": "Cancel",
+    "dialog.save": "Save",
+    "deleteDialog.title": "Confirm Deletion",
+    "deleteDialog.message": "Are you sure you want to delete the property \"{{propertyName}}\"?",
+    "deleteDialog.delete": "Delete",
+    "error.loadingProperties": "Error loading properties:",
+    "error.savingProperty": "Error saving property:",
+    "error.deletingProperty": "Error deleting property:",
+    "error.loadingSubjects": "Error loading subjects:"
+  }
+}

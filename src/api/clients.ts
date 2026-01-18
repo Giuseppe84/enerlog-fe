@@ -23,6 +23,8 @@ export const fetchClientById = async (id: string):Promise<Client> => {
 
 export const createOrUpdateClient = async (client: Client) => {
   client.createdAt = client.createdAt || new Date().toISOString();
+
+
   const response = client.id
     ? await api.put(`/clients/${client.id}`, client)
     : await api.post('/clients', client);

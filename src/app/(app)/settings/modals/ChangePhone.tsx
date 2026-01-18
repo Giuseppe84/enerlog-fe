@@ -1,96 +1,99 @@
-'use client'
+"use client";
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectTrigger, SelectGroup, SelectValue, SelectItem } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Formik, Form, FormikHelpers } from "formik";
-import * as Yup from "yup";
-import { useState } from "react";
+import { useForm, Controller, SubmitHandler } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useState, useEffect } from "react";
 import { userAPI } from "@/api/user";
 import { COUNTRY_CODES } from "@/data/country-codes";
-import { toast } from "sonner"
+import { toast } from "sonner";
 
-
-const PhoneSchema = Yup.object().shape({
-  countryPrefix: Yup.string().required("Prefisso obbligatorio"),
-
-  phoneNumber: Yup.string()
-    .matches(/^[0-9]{6,15}$/, "Numero di telefono non valido")
-    .required("Numero obbligatorio"),
-
-  code: Yup.string().when([], {
-    is: () => false,
-    then: (s) => s, // fallback
-  }),
-}).test("code-required-on-step-2", "Codice obbligatorio", function (values) {
-  if (this.options.context?.step === 2) {
-    return !!values.code;
-  }
-  return true;
+const phoneSchema = z.object({
+  countryPrefix: z.string().nonempty("Prefisso obbligatorio"),
+  phoneNumber: z
+    .string()
+    .regex(/^[0-9]{6,15}$/, "Numero di telefono non valido")
+    .nonempty("Numero obbligatorio"),
+  code: z.string().optional(),
 });
 
+type PhoneFormValues = z.infer<typeof phoneSchema>;
 
-export function ChangePhoneModal({ user, setUser, setIsOpen, isOpen }) {
+interface ChangePhoneModalProps {
+  user: { countryPrefix?: string; phoneNumber?: string };
+  setUser: (user: any) => void;
+  isOpen: boolean;
+  setIsOpen: (open: boolean) => void;
+}
 
+export function ChangePhoneModal({ user, setUser, isOpen, setIsOpen }: ChangePhoneModalProps) {
   const [step, setStep] = useState<1 | 2>(1);
   const [phoneError, setPhoneError] = useState("");
 
+  const form = useForm<PhoneFormValues>({
+    resolver: zodResolver(phoneSchema),
+    defaultValues: {
+      countryPrefix: user.countryPrefix ?? "+39",
+      phoneNumber: user.phoneNumber ?? "",
+      code: "",
+    },
+    mode: "onBlur",
+  });
+
+  useEffect(() => {
+    form.reset({
+      countryPrefix: user.countryPrefix ?? "+39",
+      phoneNumber: user.phoneNumber ?? "",
+      code: "",
+    });
+  }, [user.countryPrefix, user.phoneNumber, form]);
+
   const handleSuccess = (message: string) => {
-      toast.success(
-            "Operazione completata",
-            { description: "Il numero di telefono è stato modificato con successo" }
-        );
+    toast.success("Operazione completata", { description: message });
   };
 
-    const handleError = (message: string | null) => {
-        toast.error("Errore",
-            {
-                description: message || "Si è verificato un errore durante l'aggiornamento"
-            });
-    };
+  const handleError = (message?: string) => {
+    toast.error("Errore", { description: message || "Si è verificato un errore durante l'aggiornamento" });
+  };
 
   const handleResendCode = async (phoneNumber: string) => {
     try {
       await userAPI.sendPhoneChangeCode({ newPhone: phoneNumber });
       handleSuccess("Codice reinviato con successo");
     } catch (error: any) {
-      console.log(error);
+      console.error(error);
       handleError(error.response?.data?.message || "Errore durante l'invio del codice");
     }
   };
 
-  const handleSubmit = async (
-    values: { countryPrefix: string; phoneNumber: string; code?: string },
-    { setSubmitting }: FormikHelpers<any>
-  ) => {
+  const onSubmit: SubmitHandler<PhoneFormValues> = async (values) => {
     setPhoneError("");
 
     try {
       if (step === 1) {
-        console.log(values.countryPrefix);
-      console.log(values.phoneNumber);
-        await userAPI.sendPhoneChangeCode({ newPhone: values.countryPrefix+values.phoneNumber });
+        await userAPI.sendPhoneChangeCode({ newPhone: values.countryPrefix + values.phoneNumber });
         handleSuccess("Codice inviato al numero inserito");
         setStep(2);
       } else {
-        console.log('ttt')
-        await userAPI.verifyPhoneChange({ code: values.code! });
-
-  
-
+        if (!values.code) throw new Error("Codice obbligatorio");
+        await userAPI.verifyPhoneChange({ code: values.code });
         handleSuccess("Numero di telefono aggiornato e verificato");
         setIsOpen(false);
       }
     } catch (error: any) {
-      console.log(error);
-      const msg = error.response?.data?.message || "Errore durante l'operazione";
+      console.error(error);
+      const msg = error.response?.data?.message || error.message || "Errore durante l'operazione";
       setPhoneError(msg);
       handleError(msg);
-    } finally {
-      setSubmitting(false);
     }
   };
+
+  const values = form.watch();
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -99,46 +102,27 @@ export function ChangePhoneModal({ user, setUser, setIsOpen, isOpen }) {
           <DialogTitle>Modifica Numero di Telefono</DialogTitle>
         </DialogHeader>
 
-        <Formik
-          initialValues={{
-            countryPrefix: user.countryPrefix || "+39",
-            phoneNumber: user.phoneNumber || "",
-            code: "",
-          }}
-          validate={(values) =>
-            PhoneSchema.validate(values, { context: { step } })
-              .then(() => ({}))
-              .catch((err) => ({
-                [err.path]: err.message,
-              }))
-          }
-          onSubmit={handleSubmit}
-        >
-          {({ values, errors, touched, handleChange, isSubmitting, setFieldValue }) => (
-            <Form className="space-y-4">
-
-              <div className="flex gap-2 items-start">
-
-                {/* SELECT PREFIX */}
-                <div className="w-2/5">
-                  <Label>Paese</Label>
-
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" noValidate>
+          <div className="flex gap-2 items-start">
+            {/* SELECT PREFIX */}
+            <div className="w-2/5">
+              <Label>Paese</Label>
+              <Controller
+                name="countryPrefix"
+                control={form.control}
+                render={({ field }) => (
                   <Select
                     disabled={step === 2}
-                    value={values.countryPrefix}
+                    value={field.value ?? "+39"}
                     onValueChange={(prefix) => {
-                      setFieldValue("countryPrefix", prefix);
-
-                      // rimuovo eventuali prefissi esistenti
-                      const numberWithoutPrefix = values.phoneNumber.replace(/^\+\d+/, "");
-
-                      setFieldValue("phoneNumber", prefix + numberWithoutPrefix);
+                      field.onChange(prefix);
+                      const numberWithoutPrefix = (values.phoneNumber ?? "").replace(/^\+\d+/, "");
+                      form.setValue("phoneNumber", prefix + numberWithoutPrefix);
                     }}
                   >
                     <SelectTrigger className="w-full">
                       <SelectValue />
                     </SelectTrigger>
-
                     <SelectContent>
                       <SelectGroup>
                         {COUNTRY_CODES.map((c) => (
@@ -149,80 +133,83 @@ export function ChangePhoneModal({ user, setUser, setIsOpen, isOpen }) {
                       </SelectGroup>
                     </SelectContent>
                   </Select>
-                </div>
-
-                {/* PHONE INPUT */}
-                <div className="w-3/5">
-                  <Label htmlFor="phoneNumber">
-                    {step === 1 ? "Nuovo Numero" : "Numero"}
-                  </Label>
-
-                  <Input
-                    id="phoneNumber"
-                    name="phoneNumber"
-                    type="text"
-                    value={values.phoneNumber}
-                    onChange={handleChange}
-                    disabled={step === 2}
-                    className={touched.phoneNumber && errors.phoneNumber ? "border-destructive" : ""}
-                  />
-
-                  {touched.phoneNumber && errors.phoneNumber && (
-                    <p className="text-sm text-destructive">{String(errors.phoneNumber)}</p>
-                  )}
-                </div>
-              </div>
-
-              {/* VERIFY CODE */}
-              {step === 2 && (
-                <div className="space-y-2">
-                  <Label htmlFor="code">Codice di Verifica</Label>
-
-                  <Input
-                    id="code"
-                    name="code"
-                    type="text"
-                    value={values.code}
-                    onChange={handleChange}
-                    className={touched.code && errors.code ? "border-destructive" : ""}
-                  />
-
-                  {touched.code && errors.code && (
-                    <p className="text-sm text-destructive">{String(errors.code)}</p>
-                  )}
-                </div>
-              )}
-
-              {/* EXTRA BUTTONS */}
-              <div className="flex justify-end mt-2 gap-2">
-                {step === 2 && (
-                  <Button type="button" variant="outline" onClick={() => setStep(1)}>
-                    Modifica numero
-                  </Button>
                 )}
+              />
+            </div>
 
-                {step === 2 && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    onClick={() => handleResendCode(values.phoneNumber)}
-                  >
-                    Rinvia codice
-                  </Button>
+            {/* PHONE INPUT */}
+            <div className="w-3/5">
+              <Label htmlFor="phoneNumber">{step === 1 ? "Nuovo Numero" : "Numero"}</Label>
+              <Controller
+                name="phoneNumber"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <>
+                    <Input
+                      id="phoneNumber"
+                      type="text"
+                      {...field}
+                      value={field.value ?? ""}
+                      disabled={step === 2}
+                      className={fieldState.error ? "border-destructive" : ""}
+                    />
+                    {fieldState.error && <p className="text-sm text-destructive">{fieldState.error.message}</p>}
+                  </>
                 )}
-              </div>
+              />
+            </div>
+          </div>
 
-              {phoneError && <p className="text-sm text-destructive">{phoneError}</p>}
-
-              {/* SUBMIT */}
-              <div className="flex-shrink-0 pt-4 border-t flex justify-end">
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? "Invio..." : step === 1 ? "Invia Codice" : "Verifica Codice"}
-                </Button>
-              </div>
-            </Form>
+          {/* VERIFY CODE */}
+          {step === 2 && (
+            <div className="space-y-2">
+              <Label htmlFor="code">Codice di Verifica</Label>
+              <Controller
+                name="code"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <>
+                    <Input
+                      id="code"
+                      type="text"
+                      {...field}
+                      value={field.value ?? ""}
+                      className={fieldState.error ? "border-destructive" : ""}
+                    />
+                    {fieldState.error && <p className="text-sm text-destructive">{fieldState.error.message}</p>}
+                  </>
+                )}
+              />
+            </div>
           )}
-        </Formik>
+
+          {/* EXTRA BUTTONS */}
+          <div className="flex justify-end mt-2 gap-2">
+            {step === 2 && (
+              <Button type="button" variant="outline" onClick={() => setStep(1)}>
+                Modifica numero
+              </Button>
+            )}
+            {step === 2 && (
+              <Button type="button" variant="ghost" onClick={() => handleResendCode(values.phoneNumber ?? "")}>
+                Rinvia codice
+              </Button>
+            )}
+          </div>
+
+          {phoneError && <p className="text-sm text-destructive">{phoneError}</p>}
+
+          {/* SUBMIT */}
+          <div className="flex-shrink-0 pt-4 border-t flex justify-end">
+            <Button type="submit">
+              {form.formState.isSubmitting
+                ? "Invio..."
+                : step === 1
+                ? "Invia Codice"
+                : "Verifica Codice"}
+            </Button>
+          </div>
+        </form>
       </DialogContent>
     </Dialog>
   );

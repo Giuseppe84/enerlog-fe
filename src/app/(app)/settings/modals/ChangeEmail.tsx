@@ -1,52 +1,64 @@
-'use client'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+"use client";
+
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Formik, Form, FormikHelpers } from "formik";
-import * as Yup from "yup";
-import { useState } from "react";
+import { useForm, Controller, SubmitHandler } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useState, useEffect } from "react";
 import { userAPI } from "@/api/user";
-import { toast } from "sonner"
+import { toast } from "sonner";
 
-const EmailSchema = Yup.object().shape({
-  email: Yup.string().email("Formato email non valido").required("Email obbligatoria"),
+const emailSchema = z.object({
+  email: z.string().email("Formato email non valido").nonempty("Email obbligatoria"),
 });
 
-export function ChangeEmailModal({ user, setIsOpen, isOpen }) {
+type EmailFormValues = z.infer<typeof emailSchema>;
 
+interface ChangeEmailModalProps {
+  user: { email: string };
+  isOpen: boolean;
+  setIsOpen: (open: boolean) => void;
+}
+
+export function ChangeEmailModal({ user, isOpen, setIsOpen }: ChangeEmailModalProps) {
   const [emailError, setEmailError] = useState("");
 
+  const form = useForm<EmailFormValues>({
+    resolver: zodResolver(emailSchema),
+    defaultValues: { email: user.email ?? "" },
+    mode: "onBlur",
+  });
+
+  useEffect(() => {
+    form.reset({ email: user.email ?? "" });
+  }, [user.email, form]);
+
   const handleSuccess = () => {
-    toast.success(
-      "Operazione completata",
-      {description: "L'email è stata aggiornata con successo"}
-    );
-       setIsOpen(false);
+    toast.success("Operazione completata", {
+      description: "L'email è stata aggiornata con successo",
+    });
+    setIsOpen(false);
   };
 
   const handleError = (message?: string) => {
-    toast.error( "Errore",
-      {description: message || "Si è verificato un errore durante l'aggiornamento"
+    toast.error("Errore", {
+      description: message || "Si è verificato un errore durante l'aggiornamento",
     });
   };
 
-  const handleEmailChange = async (
-    values: { email: string },
-    { setSubmitting }: FormikHelpers<{ email: string }>
-  ) => {
+  const onSubmit: SubmitHandler<EmailFormValues> = async (values) => {
     setEmailError("");
     try {
-      const res = await userAPI.updateEmail(values.email);
-
+      await userAPI.updateEmail(values.email);
       handleSuccess();
-   
     } catch (error: any) {
-      console.log(error);
-      setEmailError(error.response?.data?.message || "Errore durante il cambio email");
-      handleError(emailError);
-    } finally {
-      setSubmitting(false);
+      console.error(error);
+      const message = error.response?.data?.message || "Errore durante il cambio email";
+      setEmailError(message);
+      handleError(message);
     }
   };
 
@@ -57,36 +69,40 @@ export function ChangeEmailModal({ user, setIsOpen, isOpen }) {
           <DialogTitle>Modifica Email</DialogTitle>
         </DialogHeader>
 
-        <Formik
-          initialValues={{ email: user.email || "" }}
-          validationSchema={EmailSchema}
-          onSubmit={handleEmailChange}
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-4"
+          noValidate
         >
-          {({ values, errors, touched, handleChange, isSubmitting }) => (
-            <Form className="space-y-4">
+          <Controller
+            name="email"
+            control={form.control}
+            render={({ field, fieldState }) => (
               <div className="space-y-2">
                 <Label htmlFor="email">Nuova Email</Label>
                 <Input
                   id="email"
-                  name="email"
                   type="email"
-                  value={values.email}
-                  onChange={handleChange}
-                  className={touched.email && errors.email ? "border-destructive" : ""}
+                  {...field}
+                  value={field.value ?? ""}
+                  className={fieldState.error ? "border-destructive" : ""}
                 />
-                {touched.email && errors.email && (
-                  <p className="text-sm text-destructive">{String(errors.email)}</p>
+                {fieldState.error && (
+                  <p className="text-sm text-destructive">{fieldState.error.message}</p>
+                )}
+                {emailError && !fieldState.error && (
+                  <p className="text-sm text-destructive">{emailError}</p>
                 )}
               </div>
+            )}
+          />
 
-              <div className="flex-shrink-0 pt-4 border-t flex justify-end">
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? "Aggiornamento..." : "Salva Modifiche"}
-                </Button>
-              </div>
-            </Form>
-          )}
-        </Formik>
+          <div className="flex-shrink-0 pt-4 border-t flex justify-end">
+            <Button type="submit" disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting ? "Aggiornamento..." : "Salva Modifiche"}
+            </Button>
+          </div>
+        </form>
       </DialogContent>
     </Dialog>
   );

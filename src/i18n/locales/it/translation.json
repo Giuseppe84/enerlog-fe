@@ -1,0 +1,497 @@
+{
+  "dashboard": {
+    "overview": "Panoramica",
+    "kpis": {
+      "totalRevenue": "Ricavo Totale",
+      "activeWorks": "Lavori Attivi",
+      "pendingPayments": "Pagamenti Pendenti",
+      "activeClients": "Clienti Attivi",
+      "fromLastMonth": "dall'ultimo mese",
+      "sinceLastHour": "dall'ultima ora"
+    },
+    "userActivity": {
+      "title": "Attività Utente"
+    },
+    "recentWorks": {
+      "title": "Lavori Recenti",
+      "description": "Hai effettuato 265 vendite questo mese."
+    },
+    "pendingPayments": {
+      "title": "Pagamenti Pendenti",
+      "description": "Hai 12 pagamenti pendenti."
+    }
+  },
+  "workDetail": {
+    "status": {
+      "toStart": "Da Iniziare",
+      "inProgress": "In Corso",
+      "completed": "Completato",
+      "canceled": "Annullato",
+      "undefined": "Non Definito"
+    },
+    "date": {
+      "notSpecified": "Non specificata"
+    },
+    "error": {
+      "loadingWork": "Errore nel caricamento della pratica:"
+    },
+    "amount": "Importo",
+    "creationDate": "Data Creazione",
+    "client": "Cliente",
+    "property": {
+      "title": "Proprietà",
+      "noPropertyAssociated": "Nessuna proprietà associata"
+    }
+  },
+  "clientDetail": {
+    "workStatus": {
+      "toStart": "Da Iniziare",
+      "inProgress": "In Corso",
+      "completed": "Completato",
+      "canceled": "Annullato"
+    },
+    "paymentStatus": {
+      "pending": "In Sospeso",
+      "completed": "Completato",
+      "failed": "Fallito"
+    },
+    "error": {
+      "loadingData": "Errore nel caricamento dei dati:"
+    },
+    "common": {
+      "loading": "Caricamento..."
+    },
+    "notFound": "Cliente non trovato",
+    "taxCode": "Codice Fiscale / P.IVA",
+    "subjects": "soggetto_one: soggetto\nsoggetto_other: soggetti",
+    "totalWorks": "Lavori totali",
+    "completedWorks": "Completati",
+    "works": "Lavori",
+    "payments": "Pagamenti",
+    "tabs": {
+      "demographics": "Anagrafica",
+      "works": "Lavori ({{count}})",
+      "subjects": "Soggetti ({{count}})",
+      "payments": "Pagamenti ({{count}})"
+    },
+    "demographics": {
+      "title": "Dati Anagrafici",
+      "companyName": "Ragione Sociale",
+      "taxCode": "Codice Fiscale / P.IVA",
+      "email": "Email",
+      "phone": "Telefono",
+      "registrationDate": "Data iscrizione",
+      "status": "Stato",
+      "active": "Attivo",
+      "legalForm": "Tipo impresa",
+      "reaNumber": "Numero REA",
+      "chamberCode": "Camera di Commercio",
+      "sdiCode": "Codice SDI",
+      "legalAddress": "Indirizzo sede legale",
+      "city": "Città sede legale",
+      "pecEmail": "email PEC",
+      "physical": {
+        "name": "Nome Cognome",
+        "taxCode": "Codice fiscale",
+        "address": "Residenza"
+      }
+    },
+    "associatedWorks": {
+      "title": "Lavori Associati",
+      "noWorks": "Nessun lavoro associato"
+    },
+    "associatedSubjects": {
+      "title": "Soggetti Associati",
+      "samePerson": "Stessa persona",
+      "noSubjects": "Nessun soggetto associato"
+    },
+    "paymentsSection": {
+      "title": "Pagamenti",
+      "noPayments": "Nessun pagamento registrato"
+    }
+  },
+  "payments": {
+    "title": "Pagamenti",
+    "kpis": {
+      "monthlyIncome": {
+        "title": "Entrate Mensili",
+        "description": "Entrate totali del mese corrente"
+      },
+      "pendingAmount": {
+        "title": "Importo Pendente",
+        "description": "Importo totale dei pagamenti in sospeso"
+      },
+      "totalPayments": {
+        "title": "Pagamenti Totali",
+        "description": "Numero totale di pagamenti registrati"
+      },
+      "paymentMethods": {
+        "title": "Metodi di Pagamento",
+        "description": "Numero di metodi di pagamento utilizzati"
+      }
+    },
+    "charts": {
+      "paymentMethods": {
+        "title": "Metodi di Pagamento"
+      }
+    },
+    "recentPayments": {
+      "title": "Pagamenti Recenti",
+      "table": {
+        "client": "Cliente",
+        "amount": "Importo",
+        "date": "Data"
+      }
+    },
+    "partiallyPaidWorks": {
+      "title": "Lavori Parzialmente Pagati",
+      "table": {
+        "work": "Lavoro",
+        "client": "Cliente",
+        "remaining": "Rimanente"
+      }
+    },
+    "error": {
+      "loadingData": "Errore nel caricamento dei dati:"
+    }
+  },
+  "properties": {
+    "name": "Nome",
+    "city": "Città",
+    "propertyType": "Tipo di Immobile",
+    "address": "Indirizzo",
+    "title": "Immobili",
+    "update": "Aggiorna Immobile",
+    "subtitle": "Gestisci i tuoi immobili",
+    "addProperty": "Aggiungi immobile",
+    "searchPlaceholder": "Cerca immobile...",
+    "listTitle": "Elenco Immobili",
+    "enum.residential": "Residenziale",
+    "enum.commercial": "Commerciale",
+    "enum.industrial": "Industriale",
+    "enum.land": "Terreno",
+    "enum.agricultural": "Agricolo",
+    "enum.other": "Altro",
+    "table.address": "Indirizzo",
+    "table.city": "Città",
+    "table.subject": "Soggetto",
+    "table.creationDate": "Data Creazione",
+    "table.actions": "Azioni",
+    "dialog.editProperty": "Modifica Immobile",
+    "dialog.addProperty": "Aggiungi Immobile",
+    "dialog.formDescription": "Compila i campi per aggiungere o modificare una proprietà.",
+    "form.client": "Cliente",
+    "form.selectClient": "Seleziona Cliente",
+    "tabs.general": "Generale",
+    "tabs.energy": "Dati Energetici",
+    "tabs.cadastral": "Dati Catastali",
+    "form.postalCode": "CAP",
+    "form.province": "Provincia",
+    "form.address": "Indirizzo",
+    "form.city": "Città",
+    "form.cadastralCode": "Codice Catastale",
+    "form.sheet": "Foglio",
+    "form.parcel": "Particella",
+    "form.subordinates": "Subalterni",
+    "form.latitude": "Latitudine",
+    "form.longitude": "Longitudine",
+    "form.selectFromMap": "Seleziona dalla Mappa",
+    "form.subject": "Soggetto",
+    "form.selectSubject": "Seleziona soggetto",
+    "form.search": "Cerca",
+    "form.validation.addressRequired": "L'indirizzo è obbligatorio",
+    "form.validation.cityRequired": "La città è obbligatoria",
+    "form.validation.subjectRequired": "Il soggetto è obbligatorio",
+    "dialog.cancel": "Annulla",
+    "dialog.save": "Salva",
+    "deleteDialog.title": "Conferma Eliminazione",
+    "deleteDialog.message": "Sei sicuro di voler eliminare l'immobile \"{{propertyName}}\"?",
+    "deleteDialog.delete": "Elimina",
+    "error.loadingProperties": "Errore nel caricamento degli immobili:",
+    "error.savingProperty": "Errore nel salvataggio dell'immobile:",
+    "error.deletingProperty": "Errore nell'eliminazione dell'immobile:",
+    "error.loadingSubjects": "Errore nel caricamento dei soggetti:",
+    "features.tabs": "Caratteristiche",
+    "features.hasElevator": "Ascensore",
+    "features.hasGarage": "Garage",
+    "features.hasParking": "Parcheggio",
+    "features.hasGarden": "Giardino",
+    "features.hasBalcony": "Balcone",
+    "features.hasTerrace": "Terrazzo",
+    "features.hasPVSystem": "Sistema Fotovoltaico",
+    "features.hasStorageSystem": "Sistema Accumulo",
+    "features.isHistoricalBuilding": "Edificio Storico",
+    "features.isHabitable": "Abitabile",
+    "features.hasAgibility": "Agibilità",
+    "cadastral.tabs": "Dati Catastali",
+    "energy.tabs": "Dati Energetici",
+    "general.tabs": "Generale"
+  },
+  "propertyDetail": {
+    "error.loadingProperty": "Errore nel caricamento della proprietà:",
+    "notFound": "Proprietà non trovata",
+    "backToProperties": "Torna alle proprietà",
+    "title": "Dettaglio Proprietà",
+    "infoCard.title": "Informazioni Proprietà",
+    "infoCard.id": "ID",
+    "infoCard.name": "Nome",
+    "infoCard.address": "Indirizzo",
+    "infoCard.city": "Città",
+    "infoCard.province": "Provincia",
+    "infoCard.postalCode": "CAP",
+    "infoCard.associatedClient": "Cliente associato",
+    "infoCard.creationDate": "Data creazione",
+    "infoCard.lastUpdate": "Ultimo aggiornamento",
+    "locationCard.title": "Posizione",
+    "worksCard.title": "Lavori associati",
+    "worksCard.table.description": "Descrizione",
+    "worksCard.table.amount": "Importo (€)",
+    "worksCard.table.paymentStatus": "Stato Pagamento",
+    "worksCard.paymentStatus.paid": "Pagato",
+    "worksCard.noWorksAssociated": "Nessun lavoro associato"
+  },
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "clients": "Clienti",
+    "properties": "Proprietà",
+    "services": "Servizi",
+    "works": "Lavori",
+    "budget": "Budget",
+    "payments": "Pagamenti",
+    "calendar": "Calendario",
+    "settings": "Impostazioni",
+    "mainMenu": "Menu Principale",
+    "activities": "Attività",
+    "finance": "Finanza",
+    "system": "Sistema",
+    "logout": "Esci",
+    "subjects": "Soggetti"
+  },
+  "calendar": {
+    "title": "Calendario Eventi",
+    "description": "Visualizza e gestisci i tuoi eventi e appuntamenti.",
+    "addEvent": "Aggiungi Evento"
+  },
+  "event": {
+    "start": "Inizio",
+    "end": "Fine",
+    "title": "Titolo"
+  },
+  "common": {
+    "add": "Aggiungi",
+    "next": "Avanti",
+    "previous": "Precedente"
+  },
+  "clients": {
+    "title": "Clienti",
+    "subtitle": "Gestisci i tuoi clienti",
+    "addClient": "Aggiungi cliente",
+    "searchPlaceholder": "Cerca cliente...",
+    "listTitle": "Elenco Clienti",
+    "table.name": "Nome",
+    "table.taxCode": "Codice Fiscale / Partita IVA",
+    "table.creationDate": "Data Creazione",
+    "table.associatedSubjects": "Soggetti Associati",
+    "table.actions": "Azioni",
+    "table.samePerson": "stessa persona",
+    "dialog.editClient": "Modifica Cliente",
+    "dialog.newClient": "Nuovo Cliente",
+    "form.firstName": "Nome",
+    "form.lastName": "Cognome",
+    "form.taxCode": "Codice Fiscale / Partita IVA",
+    "form.vatNumber": "Partita IVA",
+    "form.email": "Email",
+    "form.address": "Indirizzo",
+    "form.city": "Città",
+    "form.province": "Provincia",
+    "form.zip": "CAP",
+    "form.country": "Nazione",
+    "form.gender": "Genere",
+    "form.birthDate": "Data di Nascita",
+    "form.birthPlace": "Luogo di Nascita",
+    "form.birthProvince": "Provincia di Nascita",
+    "form.phone": "Telefono",
+    "form.type": "Tipo di Cliente",
+    "form.type.physical": "Fisico",
+    "form.type.legal": "Giuridico",
+    "form.editClient": "Modifica Cliente",
+    "form.companyName": "Ragione Sociale",
+    "form.legalForm": "Forma Giuridica",
+    "form.reaNumber": "Numero REA",
+    "form.chamberOfCommerce": "Camera di Commercio",
+    "form.pecEmail": "Email PEC",
+    "form.sdiCode": "Codice SDI",
+    "form.registrationDate": "Data di Iscrizione",
+    "form.status": "Stato",
+    "form.status.active": "Attivo",
+    "form.status.inactive": "Inattivo",
+    "form.companyNameRequired": "La ragione sociale è obbligatoria",
+    "form.chamberCode": "Camera di commercio",
+    "form.vatNumberRequired": "La partita IVA è obbligatoria",
+    "form.legalAddress": "Indirizzo",
+    "form.legalCity": "Città",
+    "form.legalCivicNumber": "Civico",
+    "form.legalPostalCode": "CAP",
+    "form.legalProvince": "Provincia",
+    "form.legalCountry": "Nazione",
+    "dialog.cancel": "Annulla",
+    "dialog.save": "Salva",
+    "form.validation.firstNameRequired": "Il nome è obbligatorio",
+    "form.validation.lastNameRequired": "Il cognome è obbligatorio",
+    "form.validation.taxCodeRequired": "Il codice fiscale è obbligatorio",
+    "form.validation.emailInvalid": "Email non valida",
+    "form.validation.emailRequired": "L'email è obbligatoria",
+    "error.loadingClients": "Errore nel caricamento dei clienti:",
+    "error.savingClient": "Errore nel salvataggio del cliente:",
+    "deleteDialog.title": "Conferma Eliminazione",
+    "deleteDialog.message": "Sei sicuro di voler eliminare il cliente {{firstName}} {{lastName}}?",
+    "deleteDialog.undoWarning": "Questa azione non può essere annullata."
+  },
+  "works": {
+    "dashboard": {
+      "title": "Dashboard Pratiche",
+      "addWork": "Aggiungi Pratica",
+      "searchPlaceholder": "Cerca una pratica...",
+      "overview": "Panoramica Pratiche"
+    },
+    "table": {
+      "description": "Descrizione",
+      "acquisitionDate": "Data Acquisizione",
+      "completionDate": "Data Completamento",
+      "status": "Stato",
+      "amount": "Importo",
+      "client": "Cliente",
+      "subject": "Soggetto",
+      "property": "Proprietà",
+      "service": "Servizio",
+      "actions": "Azioni"
+    },
+    "status": {
+      "toStart": "Da Iniziare",
+      "inProgress": "In Corso",
+      "completed": "Completato",
+      "canceled": "Annullato"
+    },
+    "form": {
+      "description": "Descrizione",
+      "acquisitionDate": "Data Acquisizione",
+      "completionDate": "Data Completamento",
+      "status": "Stato",
+      "amount": "Importo",
+      "client": "Cliente",
+      "subject": "Soggetto",
+      "property": "Proprietà",
+      "service": "Servizio",
+      "selectClient": "Seleziona un cliente",
+      "selectSubject": "Seleziona un soggetto",
+      "selectProperty": "Seleziona una proprietà",
+      "selectService": "Seleziona un servizio",
+      "select": "Seleziona",
+      "descriptionRequired": "La descrizione è obbligatoria",
+      "completionDateRequired": "La data di completamento è obbligatoria",
+      "completionDateAfterAcquisition": "La data di completamento deve essere successiva alla data di acquisizione",
+      "amountRequired": "L'importo è obbligatorio",
+      "clientRequired": "Il cliente è obbligatorio",
+      "propertyRequired": "La proprietà è obbligatoria",
+      "serviceRequired": "Il servizio è obbligatorio",
+      "subjectRequired": "Il soggetto è obbligatorio"
+    },
+    "dialog": {
+      "editWork": "Modifica Pratica",
+      "addWork": "Nuova Pratica",
+      "save": "Salva",
+      "confirmDeleteTitle": "Conferma Eliminazione",
+      "confirmDeleteMessage": "Sei sicuro di voler eliminare questa pratica?",
+      "cancel": "Annulla",
+      "delete": "Elimina"
+    }
+  },
+  "serviceDetail": {
+    "info": {
+      "title": "Informazioni Servizio",
+      "name": "Nome",
+      "acronym": "Acronimo",
+      "description": "Descrizione",
+      "price": "Prezzo",
+      "duration": "Durata",
+      "minutes": "minuti",
+      "method": "Metodo",
+      "isArchived": "Archiviato",
+      "color": "Colore",
+      "icon": "Icona",
+      "image": "Immagine",
+      "createdAt": "Creato il",
+      "updatedAt": "Aggiornato il"
+    },
+    "errors": {
+      "idMissing": "ID del servizio mancante.",
+      "loadError": "Errore nel caricamento dei dettagli del servizio.",
+      "notFound": "Servizio non trovato."
+    }
+  },
+  "mainLayout": {
+    "settings": "Impostazioni",
+    "language": "Lingua",
+    "logout": "Esci",
+    "language.it": "Italiano",
+    "language.en": "Inglese"
+  },
+  "services.form.nameRequired": "Il nome è obbligatorio",
+  "services.form.descriptionRequired": "La descrizione è obbligatoria",
+  "services.form.priceRequired": "Il prezzo è obbligatorio",
+  "services.form.priceMin": "Il prezzo non può essere negativo",
+  "services.form.durationRequired": "La durata è obbligatoria",
+  "services.form.durationMin": "La durata non può essere negativa",
+  "services.form.isArchivedRequired": "Lo stato archiviato è obbligatorio",
+  "services.errors.dataLoadError": "Errore nel caricamento dei dati:",
+  "services.errors.deleteServiceError": "Errore durante l'eliminazione del servizio:",
+  "services.errors.saveServiceError": "Errore nel salvataggio del servizio:",
+  "services.dashboard.title": "Dashboard Servizi",
+  "services.dashboard.subtitle": "Panoramica completa dei servizi offerti",
+  "services.actions.addService": "Aggiungi servizio",
+  "services.kpi.totalServices.title": "Totale Servizi",
+  "services.kpi.totalServices.description": "Servizi disponibili",
+  "services.kpi.totalRevenue.title": "Fatturato Potenziale",
+  "services.kpi.totalRevenue.description": "Somma di tutti i servizi",
+  "services.kpi.averagePrice.title": "Prezzo Medio",
+  "services.kpi.averagePrice.description": "Media dei prezzi",
+  "services.kpi.usageDistribution.title": "Pratiche Totali",
+  "services.kpi.usageDistribution.description": "Utilizzo servizi",
+  "services.charts.monthlyServices.title": "Andamento Servizi Mensile",
+  "services.charts.monthlyServices.tooltip.servizi": "servizi",
+  "services.charts.monthlyServices.tooltip.fatturato": "fatturato",
+  "services.charts.monthlyServices.tooltip.pratiche": "pratiche",
+  "services.charts.monthlyServices.legend.services": "Servizi Unici",
+  "services.charts.monthlyServices.legend.revenue": "Fatturato",
+  "services.charts.monthlyServices.legend.works": "Pratiche",
+  "services.charts.usageDistribution.title": "Servizi Più Richiesti",
+  "services.charts.usageDistribution.tooltip.count": "conteggio",
+  "services.charts.topRevenueServices.title": "Top 5 Servizi per Fatturato Generato",
+  "services.charts.topRevenueServices.legend.revenue": "Fatturato €",
+  "services.table.title": "Elenco Servizi",
+  "services.table.searchPlaceholder": "Cerca servizio...",
+  "services.table.headers.name": "Nome",
+  "services.table.headers.description": "Descrizione",
+  "services.table.headers.price": "Prezzo",
+  "services.table.headers.createdAt": "Creato il",
+  "services.table.headers.actions": "Azioni",
+  "services.table.noServicesFound": "Nessun servizio trovato.",
+  "services.actions.viewDetails": "Visualizza Dettagli",
+  "services.actions.editService": "Modifica Servizio",
+  "services.actions.deleteService": "Elimina Servizio",
+  "services.dialog.editService.title": "Modifica servizio",
+  "services.dialog.addService.title": "Aggiungi servizio",
+  "services.form.name": "Nome",
+  "services.form.acronym": "Acronimo",
+  "services.form.description": "Descrizione",
+  "services.form.price": "Prezzo",
+  "services.form.duration": "Durata",
+  "services.form.isArchived": "Archiviato",
+  "services.form.color": "Colore",
+  "services.form.icon": "Icona",
+  "services.actions.cancel": "Annulla",
+  "services.actions.saveChanges": "Salva Modifiche",
+  "services.actions.delete": "Elimina",
+  "services.deleteDialog.title": "Conferma eliminazione",
+  "services.deleteDialog.message": "Sei sicuro di voler eliminare il servizio \"{{serviceName}}\"?"
+}
