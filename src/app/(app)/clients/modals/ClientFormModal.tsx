@@ -1,6 +1,6 @@
 "use client";
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -828,8 +828,12 @@ export function ClientFormModal({ client, setClient, setIsOpen, isOpen }: Client
 
             {/* FOOTER BUTTONS */}
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>{t('common.cancel')}</Button>
+              <DialogClose asChild>
+                <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>{t('common.cancel')}</Button>
+              </DialogClose>
+
               <Button type="submit">{t('common.save')}</Button>
+
             </DialogFooter>
           </form>
         </div>

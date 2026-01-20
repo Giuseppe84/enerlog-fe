@@ -24,7 +24,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
-import { fetchClientById } from '@/api/clients';
+import { fetchClientById, fetchAvatar } from '@/api/clients';
 import { fetchWorks } from '@/api/works';
 import { fetchPayments } from '@/api/payments';
 import { useParams, useRouter } from "next/navigation";
@@ -40,6 +40,7 @@ import { DeleteClientModal } from '../modals/DeleteClientModal';
 import { AppSidebar } from "@/components/sidebar/app-sidebar"
 
 import Image from "next/image";
+import ImageUploadModal from '../modals/ImageUploadModal';
 
 
 
@@ -102,11 +103,13 @@ export default function ClientDetailPage() {
   const { clientId } = useParams<{ clientId: string }>();
 
   const [client, setClient] = useState<Client | null>(null);
+  const [avatar, setAvatar] = useState<string | null>(null);
   const [works, setWorks] = useState<Work[]>([]);
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
+  const [avatarModalOpen, setAvatarModalOpen] = useState(false);
   const { t } = useTranslation();
   const router = useRouter();
   const totalWorks = works.length;
@@ -123,12 +126,14 @@ export default function ClientDetailPage() {
         if (!clientId) return;
         const [clientData] = await Promise.all([
           fetchClientById(clientId),
+          fetchAvatar(clientId),
           //fetchWorks(),
           //fetchPayments(),
         ]);
         console.log(clientData);
         setClient(clientData);
-
+        const avatarUrl = await fetchAvatar(clientId);
+        setAvatar(avatarUrl);
 
 
 
@@ -216,33 +221,13 @@ export default function ClientDetailPage() {
 
             <div>
               <div className="p-6 space-y-6 max-w-6xl mx-auto">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <Button variant="outline" onClick={() => router.back()} className="mb-4">
-                      ← {t('common.back')}
-                    </Button>
-                    <Card className="w-54 h-54 border-4 border-white rounded-xl shadow-lg overflow-hidden  flex flex-col items-center">
-                      {client.avatar ? (
-                        <div className=" w-50 h-50">
-                          <Image
-                            src={client.avatar}
-                            alt={`${clientName} avatar`}
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
-                      ) : (
-                        <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
-                          <span className="text-gray-400">No Image</span>
-                        </div>
-                      )}
 
-                
-                    </Card>
 
-                    <h1 className="text-3xl font-bold text-gray-900">{clientName}</h1>
-                    <p className="text-gray-600 mt-2">{t('clientDetail.taxCode')}: {client.taxCode}</p>
-                  </div>
+                <div className="flex items-center justify-between mb-4">
+                  <Button variant="outline" onClick={() => router.back()} className="mb-4">
+                    ← {t('common.back')}
+                  </Button>
+
                   <Badge variant="outline" className="h-fit">
                     {client.clientSubjects?.length || 0} {t('clientDetail.subjects', { count: client.clientSubjects?.length || 0 })}
                   </Badge>
@@ -264,7 +249,13 @@ export default function ClientDetailPage() {
                           <Pencil className="w-4 h-4" />
                           Modifica
                         </DropdownMenuItem>
-
+                        <DropdownMenuItem
+                          onClick={() => setAvatarModalOpen(true)}
+                          className="gap-2"
+                        >
+                          <Pencil className="w-4 h-4" />
+                          Avatar
+                        </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => setIsDeleting(true)}
                           className="gap-2 text-red-600 focus:text-red-600"
@@ -275,7 +266,39 @@ export default function ClientDetailPage() {
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>
+
                 </div>
+
+
+
+
+                <div className="flex items-center justify-between mb-4">
+                  <div className="  mr-4">
+                    {avatar ? (
+                      <Image
+                        src={avatar}
+                        alt={`${clientName} avatar`}
+                        width={150}
+                        height={150}
+                        unoptimized
+                        className="w-50 h-50 object-bottom border-4 border-accent rounded-2xl overflow-hidden mb-4 shadow-lg"
+                      />
+
+
+                    ) : (
+                      <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
+                        <span className="text-gray-400">No Image</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="w-14 flex-1 mr-4">
+                    <h1 className="text-3xl font-bold text-gray-900">{clientName}</h1>
+                    <p className="text-gray-600 mt-2">{t('clientDetail.taxCode')}: {client.taxCode}</p>
+                  </div>
+                </div>
+
+
+
 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
@@ -490,6 +513,7 @@ export default function ClientDetailPage() {
                 </Tabs>
               </div>
               <ClientFormModal isOpen={editOpen} client={client} setIsOpen={setEditOpen} setClient={setClient} />
+              <ImageUploadModal open={avatarModalOpen} onClose={() => setAvatarModalOpen(false)} onComplete={() => { console.log('Image uploaded') }} clientId={client?.id} />
             </div>
 
 
