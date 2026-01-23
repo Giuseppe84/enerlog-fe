@@ -28,20 +28,20 @@ import { fetchClientById, fetchAvatar } from '@/api/clients';
 import { fetchWorks } from '@/api/works';
 import { fetchPayments } from '@/api/payments';
 import { useParams, useRouter } from "next/navigation";
-import { User, FileText, Users, DollarSign, Calendar, IdCard, TrendingUp, House } from 'lucide-react';
+import { User, FileText, Users, DollarSign, Calendar, IdCard, TrendingUp, House, Tag } from 'lucide-react';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { useTranslation } from 'react-i18next';
 import { Client } from '@/types/client';
 import { MoreVertical, Pencil, Trash2 } from 'lucide-react';
-import { ClientFormModal } from '../modals/ClientFormModal';
-import { DeleteClientModal } from '../modals/DeleteClientModal';
+import { ClientFormModal } from '@/components/modals/ClientFormModal';
+import { DeleteClientModal } from '@/components/modals/DeleteClientModal';
 
-import { AppSidebar } from "@/components/sidebar/app-sidebar"
+import { ClientSidebar } from "@/components/sidebar/client-sidebar"
 
 import Image from "next/image";
-import ImageUploadModal from '../modals/ImageUploadModal';
-
+import ImageUploadModal from '@/components/modals/ImageUploadModal';
+import { TagButtons } from '@/components/tags';
 
 
 type Work = {
@@ -172,7 +172,7 @@ export default function ClientDetailPage() {
 
     );
   }
-  const clientName = `${client.firstName || ''} ${client.lastName || ''}`.trim();
+  const clientName = client.companyName ? client.companyName : `${client.firstName || ''} ${client.lastName || ''}`.trim();
   const handleDeleteCancel = () => {
     setClientToDelete(null);
     setDeleteDialogOpen(false);
@@ -186,7 +186,7 @@ export default function ClientDetailPage() {
   return (
 
     <SidebarProvider>
-      <AppSidebar />
+      <ClientSidebar client={client} setClient={setClient} />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
           <div className="flex items-center gap-2 px-4">
@@ -201,6 +201,11 @@ export default function ClientDetailPage() {
                   <BreadcrumbLink href="#">
                     Clienti
                   </BreadcrumbLink>
+                </BreadcrumbItem>
+
+                <BreadcrumbSeparator className="hidden md:block" />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>{clientName}</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
@@ -278,15 +283,15 @@ export default function ClientDetailPage() {
                       <Image
                         src={avatar}
                         alt={`${clientName} avatar`}
-                        width={150}
-                        height={150}
+                        width={100}
+                        height={100}
                         unoptimized
-                        className="w-50 h-50 object-bottom border-4 border-accent rounded-2xl overflow-hidden mb-4 shadow-lg"
+                        className="w-30 h-30 object-bottom border-4 border-accent rounded-2xl overflow-hidden mb-4 shadow-lg"
                       />
 
 
                     ) : (
-                      <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
+                      <div className="w-30 h-30 object-bottom border-4 border-accent rounded-2xl overflow-hidden mb-4 shadow-lg bg-gray-200 flex items-center justify-center">
                         <span className="text-gray-400">No Image</span>
                       </div>
                     )}
@@ -297,7 +302,7 @@ export default function ClientDetailPage() {
                   </div>
                 </div>
 
-
+                <TagButtons tags={client?.tags || []} />
 
 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

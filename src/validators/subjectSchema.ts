@@ -1,74 +1,71 @@
-import * as Yup from 'yup';
-import CodiceFiscale from 'codice-fiscale-js';
-import { fi } from 'date-fns/locale';
-import { emptyToNull, firsUpper, toUpper, trim, isBirthDateMatchingTaxCode,isValidVatIT,isValidIBAN,isValidItalianZip } from './common';
+import { z } from "zod";
 
+export const SubjectFormSchema = z.object({
+  id: z.string().optional(),
+  type: z.enum(["PHYSICAL", "LEGAL"]),
 
+  // PHYSICAL
+  firstName: z.string().nullable(),
+  lastName: z.string().nullable(),
+  taxCode: z.string().nullable(),
+  birthDate: z.string().nullable(),
+  birthPlace: z.string().nullable(),
+  birthProvince: z.string().nullable(),
+  gender: z.enum(["M", "F"]).nullable(),
 
-/** Base schema */
-const BaseSubjectSchema = {
-  firstName: Yup.string().transform(trim).transform(emptyToNull).nullable(),
-  lastName: Yup.string().transform(trim).transform(emptyToNull).nullable(),
-  taxCode: Yup.string()
-    .transform(trim)
-    .transform(toUpper)
-    .required('Codice fiscale obbligatorio')
-    .length(16, 'Il codice fiscale deve avere 16 caratteri')
-    .test('valid-tax-code', 'Codice fiscale non valido', value => {
-      if (!value) return false;
-      try {
-        new CodiceFiscale(value);
-        return true;
-      } catch {
-        return false;
-      }
-    }),
-  email: Yup.string().transform(trim).email('Email non valida').required('Email obbligatoria'),
-  phone: Yup.string().transform(trim).transform(emptyToNull).nullable(),
-  mobile: Yup.string().transform(trim).transform(emptyToNull).nullable(),
-  birthDate: Yup.string().transform(emptyToNull).nullable(),
-  birthPlace: Yup.string().transform(trim).transform(toUpper).transform(emptyToNull).nullable(),
-  birthProvince: Yup.string().transform(trim).length(2, 'Il codice fiscale deve avere 2 caratteri').transform(toUpper).transform(emptyToNull).nullable(),
-  address: Yup.string().transform(trim).transform(emptyToNull).nullable(),
-  city: Yup.string().transform(trim).transform(emptyToNull).nullable(),
-  province: Yup.string().transform(trim).transform(toUpper).transform(emptyToNull).nullable(),
-  zip: Yup.string().transform(trim).transform(emptyToNull).test('valid-zip', 'CAP non valido', isValidItalianZip).nullable(),
-  country: Yup.string().transform(trim).transform(emptyToNull).nullable(),
-  iban: Yup.string().transform(trim).transform(toUpper).transform(emptyToNull).test('valid-iban', 'IBAN non valido', isValidIBAN).nullable(),
-  swift: Yup.string().transform(trim).transform(toUpper).transform(emptyToNull).nullable(),
-  pecEmail: Yup.string().transform(trim).email('PEC non valida').transform(emptyToNull).nullable(),
-  sdiCode: Yup.string().transform(trim).transform(emptyToNull).nullable(),
-  gender: Yup.string().oneOf(['M', 'F', 'X']).transform(toUpper).transform(emptyToNull).nullable(),
-};
+  // LEGAL
+  companyName: z.string().nullable(),
+  vatNumber: z.string().nullable(),
+  legalForm: z.string().nullable(),
+  reaNumber: z.string().nullable(),
+  sdiCode: z.string().nullable(),
+  pecEmail: z.string().email().nullable(),
 
-/** Physical schema */
-export const PhysicalSubjectSchema = Yup.object({
-  type: Yup.string().oneOf(['PHYSICAL']).required(),
-  ...BaseSubjectSchema,
-  firstName: Yup.string().transform(trim).required('Nome obbligatorio'),
-  lastName: Yup.string().transform(trim).required('Cognome obbligatorio'),
-  vatNumber: Yup.mixed().transform(() => null).nullable(),
-  companyName: Yup.mixed().transform(() => null).nullable(),
-  legalForm: Yup.mixed().transform(() => null).nullable(),
-  reaNumbrer: Yup.mixed().transform(() => null).nullable(),
-  chamberCode: Yup.mixed().transform(() => null).nullable(),
-}).test(
-  'birthdate-taxcode-match',
-  'La data di nascita non è coerente con il codice fiscale',
-  value => isBirthDateMatchingTaxCode(value?.birthDate, value?.taxCode)
-);
+  // CONTATTI COMUNI
+  email: z.string().email().nullable(),
+  phone: z.string().nullable(),
 
-/** Legal schema */
-export const LegalSubjectSchema = Yup.object({
-  type: Yup.string().oneOf(['LEGAL']).required(),
-  ...BaseSubjectSchema,
-  firstName: Yup.mixed().transform(() => null),
-  lastName: Yup.mixed().transform(() => null),
-  vatNumber: Yup.string().transform(trim).required('Partita IVA obbligatoria').test('valid-vat', 'Partita IVA non valida', isValidVatIT),
-  companyName: Yup.string().transform(trim).required('Ragione sociale obbligatoria'),
+  // SEDE LEGALE
+  legalAddress: z.string().nullable(),
+  legalCity: z.string().nullable(),
+  legalProvince: z.string().nullable(),
+  legalPostalCode: z.string().nullable(),
+  legalCountry: z.string().nullable(),
+
+  // BANCA
+  iban: z.string().nullable(),
+  swift: z.string().nullable(),
+})
+.superRefine((values, ctx) => {
+  if (values.type === "PHYSICAL") {
+    if (!values.firstName)
+      ctx.addIssue({ path: ["firstName"], message: "Nome obbligatorio", code: "custom" });
+    if (!values.lastName)
+      ctx.addIssue({ path: ["lastName"], message: "Cognome obbligatorio", code: "custom" });
+    if (!values.taxCode)
+      ctx.addIssue({ path: ["taxCode"], message: "Codice fiscale obbligatorio", code: "custom" });
+    if (!values.birthDate)
+      ctx.addIssue({ path: ["birthDate"], message: "Data di nascita obbligatoria", code: "custom" });
+    if (!values.birthPlace)
+      ctx.addIssue({ path: ["birthPlace"], message: "Luogo di nascita obbligatorio", code: "custom" });
+  }
+
+  if (values.type === "LEGAL") {
+    if (!values.companyName)
+      ctx.addIssue({ path: ["companyName"], message: "Ragione sociale obbligatoria", code: "custom" });
+    if (!values.vatNumber)
+      ctx.addIssue({ path: ["vatNumber"], message: "Partita IVA obbligatoria", code: "custom" });
+    if (!values.legalForm)
+      ctx.addIssue({ path: ["legalForm"], message: "Forma giuridica obbligatoria", code: "custom" });
+    if (!values.legalAddress)
+      ctx.addIssue({ path: ["legalAddress"], message: "Indirizzo legale obbligatorio", code: "custom" });
+    if (!values.legalCity)
+      ctx.addIssue({ path: ["legalCity"], message: "Città legale obbligatoria", code: "custom" });
+    if (!values.legalProvince)
+      ctx.addIssue({ path: ["legalProvince"], message: "Provincia legale obbligatoria", code: "custom" });
+    if (!values.legalPostalCode)
+      ctx.addIssue({ path: ["legalPostalCode"], message: "CAP obbligatorio", code: "custom" });
+    if (!values.pecEmail)
+      ctx.addIssue({ path: ["pecEmail"], message: "PEC obbligatoria", code: "custom" });
+  }
 });
-
-/** Lazy schema dinamico per Formik */
-export const SubjectSchema = Yup.lazy((values: any) =>
-  values?.type === 'LEGAL' ? LegalSubjectSchema : PhysicalSubjectSchema
-);

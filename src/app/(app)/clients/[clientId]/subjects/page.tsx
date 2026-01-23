@@ -109,7 +109,7 @@ export default function Page() {
 
 
       
-        <div className="space-y-6 p-5" key={subject.id}>
+        <div className="space-y-6 p-5">
                 <div className="flex justify-between items-center">
                     <h1 className="text-3xl font-bold">Soggetti</h1>
                     <Button onClick={() => {/* Apri modal per aggiungere soggetto */ }} >
@@ -137,7 +137,7 @@ export default function Page() {
                             {subjects.map(subject => (
 
 
-                          <SubjectItem subject={subject} key={subject.id} />
+                          <SubjectItem subject={subject} />
 
                             ))}
                         </div>

@@ -29,8 +29,8 @@ import { Edit, Trash2, UserPlus, Search } from 'lucide-react';
 import { fetchClients } from '@/api/clients';
 import { fetchSubjects } from '@/api/subjects';
 
-import { ClientFormModal } from './modals/ClientFormModal';
-import { DeleteClientModal } from './modals/DeleteClientModal';
+import { ClientFormModal } from '@/components/modals/ClientFormModal';
+import { DeleteClientModal } from '@/components/modals/DeleteClientModal';
 
 import type { Client } from '@/types/client'
 import { useTranslation } from 'react-i18next';
@@ -41,7 +41,7 @@ import { useRouter } from "next/navigation";
 
 export default function Page() {
 
-    const { t } = useTranslation();
+  const { t } = useTranslation();
   const [clients, setClients] = useState<Client[]>([]);
   const [open, setOpen] = useState(false);
   const [newClient, setNewClient] = useState<Client>({ id: '', firstName: '', lastName: '', taxCode: '', vatNumber: '', email: '', phone: '', createdAt: '' });
@@ -83,7 +83,7 @@ export default function Page() {
         .then(res => {
           setAvailableSubjects(res.data);
 
-       
+
         })
         .finally(() => setLoadingSubjects(false));
     }
@@ -107,7 +107,7 @@ export default function Page() {
 
   const filteredClients = clients.filter(client =>
     (client.firstName?.toLowerCase() ?? '').includes(searchTerm.toLowerCase()) ||
-    (client.lastName?.toLowerCase() ?? '').includes(searchTerm.toLowerCase()) 
+    (client.lastName?.toLowerCase() ?? '').includes(searchTerm.toLowerCase())
   );
   return (
     <SidebarProvider>
@@ -134,120 +134,120 @@ export default function Page() {
 
 
         <div className="space-y-6 p-5">
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">{t('clients.title')}</h1>
-            <p className="text-muted-foreground">{t('clients.subtitle')}</p>
+
+          {/* Header */}
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">{t('clients.title')}</h1>
+              <p className="text-muted-foreground">{t('clients.subtitle')}</p>
+            </div>
+            <Button onClick={handleOpen} className="w-full sm:w-auto">
+              <UserPlus className="mr-2 h-4 w-4" />
+              {t('clients.addClient')}
+            </Button>
           </div>
-          <Button onClick={handleOpen} className="w-full sm:w-auto">
-            <UserPlus className="mr-2 h-4 w-4" />
-            {t('clients.addClient')}
-          </Button>
-        </div>
 
-        {/* Search */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder={t('clients.searchPlaceholder')}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-9"
-          />
-        </div>
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder={t('clients.searchPlaceholder')}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-9"
+            />
+          </div>
 
 
-        <Card>
-          <CardHeader>
-            <CardTitle>{t('clients.listTitle')}</CardTitle>
-          </CardHeader>
-          <CardContent>
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('clients.listTitle')}</CardTitle>
+            </CardHeader>
+            <CardContent>
 
-            <div className="grid gap-3 grid-cols-[repeat(auto-fill,minmax(220px,1fr))]">
-              {filteredClients.map(client => (
+              <div className="grid gap-3 grid-cols-[repeat(auto-fill,minmax(220px,1fr))]">
+                {filteredClients.map(client => (
 
 
-              <Card key={client.id} className='p-6 m-1 bg-gradient-to-t  from-blue-50 to-blue-100 border-blue-200' onClick={() => router.push("/clients/" + client.id)}>
-                  <div className="flex items-center gap-3">
-                    <Avatar >
-                      <AvatarImage src={client.avatar} />
-                      <AvatarFallback>
-                        {client.firstName?.[0]}
-                      </AvatarFallback>
-                    </Avatar>
-                    {client.type === 'PHYSICAL' && <div className="truncate">
-                      <div className="text-lg font-semibold truncate">
-                        {client.firstName} {client.lastName}
-                      </div>
-                      <div className="text-xs font-extralight truncate">
-                        {client.taxCode}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        {client.type}
-                      </div>
-                    </div>}
-
-                       {client.type === 'LEGAL' && <div className="truncate">
-                      <div className="text-lg font-semibold truncate">
-                        {client.companyName} {client.legalForm}
-                      </div>
+                  <Card key={client.id} className='p-6 m-1 bg-gradient-to-t  from-blue-50 to-blue-100 border-blue-200' onClick={() => router.push("/clients/" + client.id)}>
+                    <div className="flex items-center gap-3">
+                      <Avatar >
+                        <AvatarImage src={client.avatar} />
+                        <AvatarFallback>
+                          {client.firstName?.[0]}
+                        </AvatarFallback>
+                      </Avatar>
+                      {client.type === 'PHYSICAL' && <div className="truncate">
+                        <div className="text-lg font-semibold truncate">
+                          {client.firstName} {client.lastName}
+                        </div>
                         <div className="text-xs font-extralight truncate">
-                        {client.vatNumber} / {client.taxCode}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        {client.type}
-                      </div>
-                    </div>}
+                          {client.taxCode}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {client.type}
+                        </div>
+                      </div>}
 
-                  </div>
-                </Card>
-              ))}
-            </div>
-            <div className="flex justify-between items-center mt-4">
-              <div className="text-sm text-muted-foreground">
-                Totale: {total} elementi
+                      {client.type === 'LEGAL' && <div className="truncate">
+                        <div className="text-lg font-semibold truncate">
+                          {client.companyName} {client.legalForm}
+                        </div>
+                        <div className="text-xs font-extralight truncate">
+                          {client.vatNumber} / {client.taxCode}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {client.type}
+                        </div>
+                      </div>}
+
+                    </div>
+                  </Card>
+                ))}
               </div>
+              <div className="flex justify-between items-center mt-4">
+                <div className="text-sm text-muted-foreground">
+                  Totale: {total} elementi
+                </div>
 
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={page === 1}
-                  onClick={() => setPage(p => p - 1)}
-                >
-                  Precedente
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={page === 1}
+                    onClick={() => setPage(p => p - 1)}
+                  >
+                    Precedente
+                  </Button>
 
-                <span className="text-sm">
-                  Pagina {page} di {totalPages}
-                </span>
+                  <span className="text-sm">
+                    Pagina {page} di {totalPages}
+                  </span>
 
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={page === totalPages}
-                  onClick={() => setPage(p => p + 1)}
-                >
-                  Successiva
-                </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={page === totalPages}
+                    onClick={() => setPage(p => p + 1)}
+                  >
+                    Successiva
+                  </Button>
+                </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-      
-               <ClientFormModal isOpen={open} client={newClient} setIsOpen={setOpen} setClient={setNewClient} />
-        <DeleteClientModal
-          deleteDialogOpen={deleteDialogOpen}
-          setDeleteDialogOpen={setDeleteDialogOpen}
-          clientToDelete={clientToDelete}
-          handleDeleteCancel={handleDeleteCancel}
-          handleDeleteConfirm={handleDeleteConfirm}
-        />
-      </div>
-    </div >
+
+          <ClientFormModal isOpen={open} client={newClient} setIsOpen={setOpen} setClient={setNewClient} />
+          <DeleteClientModal
+            deleteDialogOpen={deleteDialogOpen}
+            setDeleteDialogOpen={setDeleteDialogOpen}
+            clientToDelete={clientToDelete}
+            handleDeleteCancel={handleDeleteCancel}
+            handleDeleteConfirm={handleDeleteConfirm}
+          />
+
+        </div >
       </SidebarInset>
     </SidebarProvider>
   )

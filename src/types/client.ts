@@ -38,7 +38,15 @@ export type PhysicalPersonClient = BaseClient & {
   birthPlace?: string | null;
   birthProvince?: string | null;
   gender?: string | null;
-
+  tags?: {
+    clientId: string;
+    tagId: number;
+    tag: {
+      id: number;
+      name: string;
+      color: string;
+    };
+  }[];
   taxCode?: string | null;
 };
 

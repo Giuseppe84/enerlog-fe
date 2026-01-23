@@ -16,16 +16,26 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
+import { ClientFormModal } from '@/components/modals/ClientFormModal';
+import { Client } from "@/types/client"
+
+
+
 export function TeamSwitcher({
   teams,
+  client
 }: {
   teams: {
     name: string
     logo: React.ElementType
     plan: string
-  }[]
+  }[],
+  client: Client,
+  setClient?: React.Dispatch<React.SetStateAction<Client>> | undefined,
 }) {
+
   const { isMobile } = useSidebar()
+    const [editOpen, setEditOpen] = React.useState(false);
   const [activeTeam, setActiveTeam] = React.useState(teams[0])
   if (!activeTeam) {
     return null
@@ -87,6 +97,7 @@ export function TeamSwitcher({
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>
+                
     </SidebarMenu>
   )
 }

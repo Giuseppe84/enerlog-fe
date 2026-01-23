@@ -17,31 +17,58 @@ export type ClientSubject={   client: {
         isSamePerson: boolean;
 
 }
-export type Subject = {
-    id: string;
-    firstName: string;
-    lastName: string;
-    taxCode: string;
-    email?: string;
-    phone?: string;
-    birthDate?: string;
-    type?: 'PHYSICAL' | 'LEGAL';
-    birthPlace?: string;
-    birthProvince?: string;
-    address?: string;
-    city?: string;
-    province?: string;
-    zip?: string;
-    country?: string;
-    iban?: string;
-    swift?: string;
-    mobile?: string;
-    pecEmail?: string;
-    sdiCode?: string;
-    vatNumber?: string;
-    clients?:ClientSubject[];
-    gender?: 'M' | 'F' | 'X';
+export type SubjectBase = {
+  id?: string
+
+  address?: string
+  city?: string
+  province?: string
+  postalCode?: string
+  country?: string
+
+  email?: string
+  phone?: string
+  pecEmail?: string
+
+  birthDate?: Date
+  birthPlace?: string
+  birthProvince?: string
+
+  legalTaxCode?: string
+  legalAddress?: string
+  legalCity?: string
+  legalProvince?: string
+  legalPostalCode?: string
+  legalForm?: string
+
+  reaNumber?: string
+  sdiCode?: string
+  iban?: string
+  swift?: string
+
+  isDeleted?: boolean
+}
 
 
-    createdAt: string;
-};
+export type PhysicalSubject = SubjectBase & {
+  type: "PHYSICAL"
+
+  firstName: string
+  lastName: string
+  taxCode: string
+
+  companyName?: never
+  vatNumber?: never
+}
+export type LegalSubject = SubjectBase & {
+  type: "LEGAL"
+
+  companyName: string
+  vatNumber: string
+
+  firstName?: never
+  lastName?: never
+  taxCode?: never
+}
+
+export type SubjectInput = PhysicalSubject | LegalSubject
