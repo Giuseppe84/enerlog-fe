@@ -14,7 +14,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     const checkSession = async () => {
       try {
         const res = await userAPI.getMe(); // chiama /auth/me
-        setUser(res.data);
+        setUser(res);
         setIsAuthenticated(true);
       } catch (err) {
         setUser(null);
@@ -30,7 +30,9 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
   const login = async () => {
     // il cookie viene già settato dal backend
     const res = await userAPI.getMe();
-    setUser(res.data);
+    console.log("Login successful, user data:", res);
+
+    setUser(res);
     setIsAuthenticated(true);
   };
 

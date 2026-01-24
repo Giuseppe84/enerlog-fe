@@ -24,6 +24,16 @@ import { fetchPropertiesBySubject } from "@/api/properties"
 import type { Property } from "@/types/property"
 import type { Work } from "@/types/work"
 import SubjectDetailsCard from "./SubjectDetails"
+import { SubjectModal } from "@/components/modals/SubjectFormModal";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import { MoreVertical, Pencil, Trash2 } from 'lucide-react';
+
+
 // import { fetchWorks } from "@/api/works"
 import {
   Tabs,
@@ -37,16 +47,18 @@ export default function Page() {
   const { t } = useTranslation();
   const router = useRouter();
   const { subjectId } = useParams<{ subjectId: string }>();
-
+  const [initialized, setInitialized] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
   const [subject, setSubject] = useState<SubjectInput | null>(null);
   const [properties, setProperties] = useState<Property[]>([]);
   const [works, setWorks] = useState<Work[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [editOpen, setEditOpen] = useState(false);
-console.log('subjectId:', subjectId);
+  const [notFound, setNotFound] = useState(false);
+  console.log('subjectId:', subjectId);
 
   useEffect(() => {
+    if (!subjectId || initialized) return;
     const loadData = async () => {
       try {
         console.log('Loading data for subjectId:', subjectId);
@@ -61,16 +73,18 @@ console.log('subjectId:', subjectId);
         console.log('Properties data:', properties);
         setSubject(subjectData);
         //setProperties(propertiesData || []);
-
+        setInitialized(true);
       } catch (error) {
         console.error('Errore nel caricamento dei dati:', error);
-        setSubject(null);
+        setNotFound(true);
       } finally {
         setLoading(false);
       }
     };
     loadData();
   }, [subjectId]);
+
+
   if (loading) {
     return (
 
@@ -96,6 +110,7 @@ console.log('subjectId:', subjectId);
     );
   }
   return (
+ 
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
@@ -109,7 +124,7 @@ console.log('subjectId:', subjectId);
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="#">
+                  <BreadcrumbLink href="/subjects">
                     Soggetti
                   </BreadcrumbLink>
                 </BreadcrumbItem>
@@ -122,24 +137,57 @@ console.log('subjectId:', subjectId);
             </Breadcrumb>
           </div>
         </header>
-        <div className=" m-4">
+        <div className="m-4">
+          <div className=" flex justify-end absolute top-4 right-4">
+          <DropdownMenu >
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <MoreVertical className="w-5 h-5" />
+              </Button>
+            </DropdownMenuTrigger>
+
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                onClick={() => setEditOpen(true)}
+                className="gap-2"
+              >
+                <Pencil className="w-4 h-4" />
+                Modifica
+              </DropdownMenuItem>
+
+              <DropdownMenuItem
+                onClick={() => setIsDeleting(true)}
+                className="gap-2 text-red-600 focus:text-red-600"
+              >
+                <Trash2 className="w-4 h-4" />
+                Elimina
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          </div>
           <Tabs defaultValue="overview" >
             <TabsList>
               <TabsTrigger value="overview">Dati anagrafici</TabsTrigger>
               <TabsTrigger value="properties">Immobili</TabsTrigger>
               <TabsTrigger value="works">Pratiche</TabsTrigger>
+                  <TabsTrigger value="documents">Documenti</TabsTrigger>
             </TabsList>
             <TabsContent value="overview">
-              <SubjectDetailsCard subject={subject as any} />
+              <SubjectDetailsCard subject={subject as any} setSubject={setSubject} />
             </TabsContent>
-               <TabsContent value="properties">
+            <TabsContent value="properties">
               <div>immobili</div>
             </TabsContent>
-               <TabsContent value="works">
-          <div>proprietà</div>
+            <TabsContent value="works">
+              <div>pratiche</div>
+            </TabsContent>
+               <TabsContent value="documents">
+              <div>Documenti</div>
             </TabsContent>
           </Tabs>
+
         </div>
+        <SubjectModal isOpen={editOpen} setIsOpen={setEditOpen} subject={subject ?? {}} setSubject={setSubject} />
       </SidebarInset>
     </SidebarProvider>
 

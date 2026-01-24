@@ -35,9 +35,14 @@ export const userAPI = {
     return response.data;
   },
   getMe: async () => {
+    try {
     const response = await api.get('/auth/me')
     console.log(response)
     return response.data;
+    } catch (error) {
+      console.error("Error in getMe:", error);
+      throw error;
+    }
   },
 
   login: async (email: string, password: string) => {

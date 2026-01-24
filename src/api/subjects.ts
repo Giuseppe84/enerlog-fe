@@ -7,23 +7,27 @@ import { normalizeEmptyToNull } from '@/utils/normalize';
 export const fetchSubjects = async (
   page = 1,
   limit = 10,
-  search?: string
+  query?: string
 ): Promise<SubjectsResponse> => {
   const res = await api.get('/subjects', {
-    params: { page, limit, search },
+    params: { page, limit, q: query },
   });
 
   return res.data;
 };
 export const createOrUpdateSubject = async (subject: Subject) => {
-
-  const data = normalizeEmptyToNull(subject);
+console.log("createOrUpdateSubject called with subject:", subject, "and clientId:", subject.clientId);
+  
+const data = normalizeEmptyToNull(subject);
   // Gestione userSubjects solo per nuovo inserimento
   if (!data.id) {
     data.userSubjects = data.userSubjects?.map(us => ({
       ...us,
       isSamePerson: us.isSamePerson ?? false
     })) ?? [];
+  }
+  if (subject.clientId) {
+    data.clientId = subject.clientId;
   }
 
   const response = data.id

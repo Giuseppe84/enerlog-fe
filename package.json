@@ -19,6 +19,7 @@
     "codice-fiscale-js": "^2.3.23",
     "color-thief-browser": "^2.0.2",
     "date-fns": "^4.1.0",
+    "dayjs": "^1.11.19",
     "i18next": "^25.7.4",
     "i18next-browser-languagedetector": "^8.2.0",
     "input-otp": "^1.4.2",

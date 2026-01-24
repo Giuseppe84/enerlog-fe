@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 
+import dayjs from "dayjs"
 
 import {
   Card,
@@ -17,14 +18,10 @@ import {
   TooltipProvider,
 } from "@/components/ui/tooltip"
 import { Badge } from "@/components/ui/badge"
-
-// 🔁 tipi (adatta se necessario)
-import type { SubjectInput } from "@/types/subject"
-
-// 🔁 funzione che già hai
+import type { Subject } from "@/types/subject"
 import { fetchAvatar } from "@/api/clients"
 import { useRouter } from "next/navigation";
-
+import { User, Building, Sparkles } from "lucide-react"
 
 
 /* -------------------------------------------------------
@@ -45,11 +42,12 @@ const fetchCachedAvatar = async (clientId: string) => {
 /* -------------------------------------------------------
    Card singolo Subject
 ------------------------------------------------------- */
-const SubjectItem = ({ subject }: { subject: SubjectInput }) => {
+const SubjectItem = ({ subject }: { subject: Subject }) => {
 
   const [clientAvatars, setClientAvatars] = useState<Record<string, string>>({})
   const router = useRouter();
-  
+  const subjectName = subject.companyName ? subject.companyName : `${subject.firstName || ''} ${subject.lastName || ''}`.trim();
+  const isRecent = dayjs().diff(dayjs(subject.createdAt), "day") <= 7
   useEffect(() => {
     const loadClientAvatars = async () => {
       if (!subject.clients?.length) return
@@ -57,6 +55,7 @@ const SubjectItem = ({ subject }: { subject: SubjectInput }) => {
       try {
         const results = await Promise.all(
           subject.clients.map(async (item) => {
+
             const clientId = item.client.id
             const avatarUrl = await fetchCachedAvatar(clientId)
             return [clientId, avatarUrl] as const
@@ -74,65 +73,111 @@ const SubjectItem = ({ subject }: { subject: SubjectInput }) => {
 
   return (
     <Card
-      className="h-30 w-50 flex flex-col items-center justify-center  cursor-pointer bg-gradient-to-t from-blue-50 to-blue-100 border-blue-200 hover:shadow-md transition"
       onClick={() => router.push("/subjects/" + subject.id)}
+      className={`w-full cursor-pointer transition border
+    hover:shadow-lg hover:border-primary/40
+    ${isRecent ? "border-primary/50 bg-primary/5" : ""}
+  `}
     >
-      <CardContent className="p-4 m-3 flex flex-col items-start gap-2 text-center">
+      <CardContent className="p-4 grid grid-cols-[1fr_auto_auto] items-center gap-6">
 
-        <div className="flex-1 truncate">
-          <div className="text-lg font-semibold truncate">
-            {subject.firstName} {subject.lastName}
+        {/* LEFT — Identità */}
+        <div className="flex items-start gap-3 min-w-0">
+
+          {/* Icona tipo */}
+          <div
+            className={`h-10 w-10 rounded-lg flex items-center justify-center
+          ${subject.type === "PHYSICAL"
+                ? "bg-blue-500/10 text-blue-600"
+                : "bg-violet-500/10 text-violet-600"
+              }
+        `}
+          >
+            {subject.type === "PHYSICAL" ? (
+              <User className="h-5 w-5" />
+            ) : (
+              <Building className="h-5 w-5" />
+            )}
           </div>
 
-          {subject.taxCode && (
-            <div className="text-xs font-mono truncate pb-1">
-              {subject.taxCode}
-            </div>
-          )}
-
-          <Badge className="h-4 rounded-none px-2 text-xs font-light">
-            {subject.type === "PHYSICAL"
-              ? "PERSONA FISICA"
-              : "PERSONA GIURIDICA"}
-          </Badge>
-
-          {/* Avatar clienti */}
-          {subject.clients?.length > 0 && (
-            <TooltipProvider>
-              <div className="pt-2 flex -space-x-2">
-                {subject.clients.map((item, index) => {
-                  const client = item.client
-                  const avatarUrl = clientAvatars[client.id]
-
-                  return (
-                    <Tooltip key={index}>
-                      <TooltipTrigger asChild>
-                        <Avatar
-                          className="h-8 w-8 ring-2 ring-background grayscale hover:grayscale-0 transition"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <AvatarImage src={avatarUrl} />
-                          <AvatarFallback className="text-[10px]">
-                            {client.firstName?.[0] ??
-                              client.companyName?.[0]}
-                          </AvatarFallback>
-                        </Avatar>
-                      </TooltipTrigger>
-
-                      <TooltipContent>
-                        <p className="text-xs">
-                          {client.firstName
-                            ? `${client.firstName} ${client.lastName}`
-                            : client.companyName}
-                        </p>
-                      </TooltipContent>
-                    </Tooltip>
-                  )
-                })}
+          {/* Testi */}
+          <div className="flex flex-col min-w-0 gap-0.5">
+            <div className="flex items-center gap-2 flex-wrap">
+              <div className="font-semibold truncate">
+                {subjectName}
               </div>
-            </TooltipProvider>
-          )}
+
+              <Badge variant="secondary" className="h-5 px-2 text-[10px]">
+                {subject.type === "PHYSICAL"
+                  ? "PERSONA FISICA"
+                  : "PERSONA GIURIDICA"}
+              </Badge>
+
+              {isRecent && (
+                <Badge
+                  variant="outline"
+                  className="h-5 px-2 text-[10px] gap-1 text-primary border-primary/40"
+                >
+                  <Sparkles className="h-3 w-3" />
+                  Nuovo
+                </Badge>
+              )}
+            </div>
+
+            {subject.taxCode && (
+              <div className="text-xs text-muted-foreground truncate">
+                CF: <span className="font-mono">{subject.taxCode}</span>
+              </div>
+            )}
+          </div>
         </div>
+
+        {/* CENTER — Avatar clienti */}
+        {subject.clients?.length > 0 && (
+          <TooltipProvider>
+            <div className="flex -space-x-3">
+              {subject.clients.map((item, index) => {
+                const client = item.client
+                const avatarUrl = clientAvatars[client.id]
+
+                return (
+                  <Tooltip key={index}>
+                    <TooltipTrigger asChild>
+                      <Avatar
+                        onClick={(e) => e.stopPropagation()}
+                        className="h-9 w-9 ring-2 ring-background
+                      grayscale hover:grayscale-0 transition"
+                      >
+                        <AvatarImage src={avatarUrl} />
+                        <AvatarFallback className="text-[10px]">
+                          {client.firstName?.[0] ??
+                            client.companyName?.[0]}
+                        </AvatarFallback>
+                      </Avatar>
+                    </TooltipTrigger>
+
+                    <TooltipContent>
+                      <p className="text-xs">
+                        {client.firstName
+                          ? `${client.firstName} ${client.lastName}`
+                          : client.companyName}
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                )
+              })}
+            </div>
+          </TooltipProvider>
+        )}
+
+        {/* RIGHT — Data */}
+        <div className="text-right text-xs text-muted-foreground whitespace-nowrap">
+          <div>Inserito il</div>
+          <div className="font-medium text-foreground">
+            {dayjs(subject.createdAt).format("DD/MM/YYYY")}
+          </div>
+        </div>
+
       </CardContent>
     </Card>
   )

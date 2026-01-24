@@ -40,13 +40,14 @@ export type SubjectBase = {
   legalProvince?: string
   legalPostalCode?: string
   legalForm?: string
-
+  legalCountry?:string
   reaNumber?: string
   sdiCode?: string
   iban?: string
   swift?: string
 
   isDeleted?: boolean
+  clientId?: string
 }
 
 
@@ -71,4 +72,4 @@ export type LegalSubject = SubjectBase & {
   taxCode?: never
 }
 
-export type SubjectInput = PhysicalSubject | LegalSubject
+export type Subject = PhysicalSubject | LegalSubject

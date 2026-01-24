@@ -10,3 +10,9 @@ export const LEGAL_FORMS = [
   { value: "ASSOCIAZIONE", label: "Associazione" },
   { value: "FONDAZIONE", label: "Fondazione" },
 ];
+
+export function getLegalFormLabel(value?: string) {
+  return (
+    LEGAL_FORMS.find(f => f.value === value)?.label ?? "-"
+  );
+}

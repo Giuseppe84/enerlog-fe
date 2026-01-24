@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 import { useForm, Controller, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import {  useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import CodiceFiscale from 'codice-fiscale-js';
 import { Calendar } from "lucide-react"; // icona opzionale
@@ -29,8 +29,8 @@ import {
 } from "@/components/ui/field"
 import CitySearch from '@/components/fields/city-search';
 import { CountrySelector } from '@/components/fields/country-selector';
-import{PersonType, LEGAL_FORMS} from '@/data/legal-forms';
-import {clientSchema} from '@/validators/clientSchema';
+import { PersonType, LEGAL_FORMS } from '@/data/legal-forms';
+import { clientSchema } from '@/validators/clientSchema';
 
 
 
@@ -407,7 +407,15 @@ export function ClientFormModal({ client, setClient, setIsOpen, isOpen }: Client
                           </div>
                         )} />
                       </div>
-
+                      <div className="col-span-3">
+                        <Controller name="sdiCode" control={form.control} render={({ field, fieldState }) => (
+                          <div className="space-y-2">
+                            <Label htmlFor="sdiCode">{t('clients.form.sdiCode')} *</Label>
+                            <Input id="sdiCode" {...field} value={field.value ?? ""} className={fieldState.error ? 'border-destructive' : ''} />
+                            {fieldState.error && <p className="text-sm text-destructive">{fieldState.error.message}</p>}
+                          </div>
+                        )} />
+                      </div>
 
 
                     </div>

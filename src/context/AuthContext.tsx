@@ -6,6 +6,7 @@ import { userAPI } from "@/api/user"
 
 export default function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<any | null>(null)
+
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [loading, setLoading] = useState(true)
 
@@ -15,6 +16,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
       try {
         const res = await userAPI.getMe() // GET /auth/me
         setUser(res.data)
+        console.log("authcontext User authenticated:", res.data)
         setIsAuthenticated(true)
       } catch (err) {
         setUser(null)
@@ -31,7 +33,8 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
   const login = async () => {
     await userAPI.addDevice()
     const res = await userAPI.getMe()
-    setUser(res.data)
+    console.log("Login successful, user data:", res)
+    setUser(res)
     setIsAuthenticated(true)
   }
 
