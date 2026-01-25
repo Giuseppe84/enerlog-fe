@@ -8,12 +8,14 @@ import {
   Frame,
   GalleryVerticalEnd,
   Map,
-  PieChart,
+  User,
   Settings2,
   SquareTerminal,
+  FileUser,
+  House
 } from "lucide-react"
 import { NavMain } from "@/components/sidebar/nav-main"
-import { NavProjects } from "@/components/sidebar/nav-projects"
+import { NavEntities } from "@/components/sidebar/nav-entities"
 import { NavUser } from "@/components/sidebar/nav-user"
 import { TeamSwitcher } from "@/components/sidebar/team-switcher"
 import {
@@ -138,21 +140,24 @@ const data = {
       ],
     },
   ],
-  projects: [
+
+
+
+  entities: [
     {
-      name: "Design Engineering",
-      url: "#",
-      icon: Frame,
+      name: "Clienti",
+          url: "/clients",
+      icon: User,
     },
     {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
+      name: "Soggetti",
+      url: "/subjects",
+      icon: FileUser,
     },
     {
-      name: "Travel",
-      url: "#",
-      icon: Map,
+      name: "Immobili",
+      url: "/properties",
+      icon: House,
     },
   ]
 }
@@ -163,8 +168,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <TeamSwitcher teams={data.teams} />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
+   
+        <NavEntities entities={data.entities} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />

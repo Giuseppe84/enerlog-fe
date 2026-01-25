@@ -1,3 +1,5 @@
+import { Subject } from "./subject"
+
 export interface CadastralData {
   municipality: string;
   municipalityCode: string;
@@ -56,12 +58,12 @@ export interface Property {
   isHistoricalBuilding?: boolean;
   isHabitable?: boolean;
   hasAgibility?: boolean;
-
+  energyUsageType:string;
   cadastralData: CadastralData[];
 
   ownerId: string;
   notes?: string;
-
+  subject: Subject;
   createdAt?: string;
   updatedAt?: string;
 }
