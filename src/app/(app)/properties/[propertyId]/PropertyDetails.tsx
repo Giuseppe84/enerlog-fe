@@ -1,6 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import {
   MapPin,
   Home,
@@ -12,12 +18,14 @@ import {
 import dayjs from "dayjs";
 import { Property } from "@/types/property";
 import { EnergyClassBadge } from "@/components/energy-class-badge";
+import { getBuildingType, getUsageDestination, getEnergyUsageType, getCadastralCategoriese } from "@/data/properties"
+import { useEffect, useState } from "react";
 
 interface PropertyDetailPageProps {
   property: Property;
 }
 
-function Info({ label, value }: { label: string; value?: any}) {
+function Info({ label, value }: { label: string; value?: any }) {
   if (!value) return null;
   return (
     <div>
@@ -33,11 +41,17 @@ function formatMq(value?: number) {
 
 
 export function PropertyDetailPage({ property }: PropertyDetailPageProps) {
+
+  const bt = getBuildingType(property.buildingType);
+  const ud = getUsageDestination(property.usageDestination);
+  const eu = getEnergyUsageType(property.energyUsageType);
+
+
   return (
     <div className="space-y-6">
 
       {/* HEADER */}
-      
+
 
       {/* GRID */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -54,10 +68,10 @@ export function PropertyDetailPage({ property }: PropertyDetailPageProps) {
               </CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-2 gap-4 text-sm">
-                <div className="font-medium col-span-2">{property.notes}</div>
+              <div className="font-medium col-span-2">{property.notes}</div>
 
-              <Info label="Tipologia edificio" value={property.buildingType} />
-              <Info label="Destinazione uso" value={property.usageDestination} />
+              <Info label="Tipologia edificio" value={bt?.name} />
+              <Info label="Destinazione uso" value={ud?.name} />
               <Info label="Anno costruzione" value={property.yearBuilt} />
               <Info label="Anno ristrutturazione" value={property.renovationYear} />
               <Info label="Piani totali" value={property.floors} />
@@ -75,7 +89,7 @@ export function PropertyDetailPage({ property }: PropertyDetailPageProps) {
               </CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-2 gap-4 text-sm">
-          
+
               <Info label="Superficie" value={formatMq(property.sup)} />
               <Info label="Sup. commerciale" value={formatMq(property.supCommercial)} />
               <Info label="Sup. terreno" value={formatMq(property.supLand)} />
@@ -113,7 +127,7 @@ export function PropertyDetailPage({ property }: PropertyDetailPageProps) {
             </CardHeader>
             <CardContent className="space-y-3 text-sm">
               <EnergyClassBadge value={property.energyClass} />
-                    <Info label="Destinazione d'uso D.P.R. 412/93" value={property.energyUsageType} />
+              <Info label="Destinazione d'uso D.P.R. 412/93" value={eu?.name} />
               <Separator />
               <Info label="EPgl,nren" value={property.EPglnren && `${property.EPglnren} kWh/m²`} />
               <Info label="EPgl,ren" value={property.EPglren && `${property.EPglren} kWh/m²`} />
@@ -138,8 +152,17 @@ export function PropertyDetailPage({ property }: PropertyDetailPageProps) {
                   <div className="font-medium">
                     {item.municipality} ({item.municipalityCode})
                   </div>
+                  <div>  {getCadastralCategoriese(item.category)?.name}</div>
                   <div className="flex flex-wrap gap-2">
-                    <Badge variant="outline">Cat. {item.category}</Badge>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Badge variant="outline">Cat. {getCadastralCategoriese(item.category)?.code}</Badge>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{getCadastralCategoriese(item.category)?.name}</p>
+                      </TooltipContent>
+                    </Tooltip>
+
                     <Badge variant="outline">Foglio {item.sheet}</Badge>
                     <Badge variant="outline">Part. {item.parcel}</Badge>
                     {item.subaltern && (
@@ -170,7 +193,7 @@ export function PropertyDetailPage({ property }: PropertyDetailPageProps) {
               )}
             </CardContent>
           </Card>
-   
+
         </div>
       </div>
     </div>

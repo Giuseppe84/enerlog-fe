@@ -151,7 +151,7 @@ export default function Page() {
 
                             <DropdownMenuContent align="end">
                                 <DropdownMenuItem
-                                    onClick={() => {setEditOpen(true); console.log(editOpen)}}
+                                    onClick={() => { setEditOpen(true); console.log(editOpen) }}
                                     className="gap-2"
                                 >
                                     <Pencil className="w-4 h-4" />
@@ -204,7 +204,7 @@ export default function Page() {
 
                 </div>
 
-       <PropertyFormModal isOpen={editOpen} setIsOpen={setEditOpen} property={property} setProperty={setProperty}/>
+                <PropertyFormModal open={editOpen} setIsOpen={setEditOpen} property={property ?? {}} setProperty={setProperty} />
             </SidebarInset>
         </SidebarProvider>
 

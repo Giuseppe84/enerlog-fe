@@ -5,20 +5,29 @@ import {
   SelectItem,
   SelectValue,
 } from "@/components/ui/select";
-import { useForm, Controller, SubmitHandler } from 'react-hook-form';
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Controller, UseFormReturn } from 'react-hook-form';
+
+import {PropertyFormValues} from "@/validators/propertySchema"
+
+
+interface StepProps {
+  form: UseFormReturn<PropertyFormValues>
+}
 
 
 const ENERGY_CLASSES = ["A4","A3","A2","A1","B","C","D","E","F","G"];
 
-export function EnergyStep({ form }: any) {
+export function EnergyStep({ form }: StepProps) {
   return (
-    <div className="grid grid-cols-3 gap-4">
+     <div className="flex flex-col gap-4">
+       <h3 className="font-semibold">Dati energetici</h3>
       <Controller
         name="energyClass"
         control={form.control}
-        render={({ field }) => (
+        render={({ field ,fieldState}) => (
           <div>
             <Label>Classe energetica</Label>
             <Select value={field.value} onValueChange={field.onChange}>
@@ -31,6 +40,11 @@ export function EnergyStep({ form }: any) {
                 ))}
               </SelectContent>
             </Select>
+              {fieldState.error && (
+              <p className="text-sm text-destructive">
+                {fieldState.error.message}
+              </p>
+            )}
           </div>
         )}
       />
@@ -38,10 +52,15 @@ export function EnergyStep({ form }: any) {
       <Controller
         name="EPglren"
         control={form.control}
-        render={({ field }) => (
+        render={({ field,fieldState }) => (
           <div>
             <Label>EPgl,ren</Label>
             <Input type="number" {...field} />
+                {fieldState.error && (
+              <p className="text-sm text-destructive">
+                {fieldState.error.message}
+              </p>
+            )}
           </div>
         )}
       />
@@ -49,10 +68,15 @@ export function EnergyStep({ form }: any) {
       <Controller
         name="co2"
         control={form.control}
-        render={({ field }) => (
+        render={({ field,fieldState }) => (
           <div>
             <Label>CO₂</Label>
             <Input type="number" {...field} />
+                 {fieldState.error && (
+              <p className="text-sm text-destructive">
+                {fieldState.error.message}
+              </p>
+            )}
           </div>
         )}
       />

@@ -44,13 +44,13 @@ if (!property.id) {
   // Creazione nuova property
   const response = await api.post('/properties', propertyCopy);
   return response.data;
-}
-  delete propertyCopy.id;
+}delete propertyCopy.municipalityCode;
+  delete propertyCopy.municipality;
   delete propertyCopy.createdAt;
   delete propertyCopy.updatedAt;
-  delete propertyCopy.ownerId;
+  console.log(propertyCopy);
 
-  const response = await api.put(`/properties/${property.id}`, propertyCopy);
+  const response = await api.put(`/properties`, propertyCopy);
   return response.data;
 };
 

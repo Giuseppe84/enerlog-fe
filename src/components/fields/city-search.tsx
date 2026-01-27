@@ -16,10 +16,11 @@ export type PostalCodeDTO = {
   placeName: string;
   istatCode: string;
   provinceCode: string;
-  provinceName: string;
+  provinceName: string,
+  municipalityCode: string;
   region: string;
-  lat: string;
-  lng: string;
+  lat: number;
+  lng: number;
   altitude: string;
 };
 
@@ -47,9 +48,10 @@ const CitySearch: React.FC<CitySearchProps> = ({ onChange, value }) => {
           istatCode: item.municipality.istatCode,
           provinceCode: item.municipality.provinceCode || '',
           provinceName: item.municipality.provinceName || '',
+          municipalityCode: item.municipality.municipalityCode || '',
           region: item.municipality.region || '',
-          lat: item.municipality.latitude?.toString() || '',
-          lng: item.municipality.longitude?.toString() || '',
+          lat: item.municipality.latitude,
+          lng: item.municipality.longitude,
           altitude: item.municipality.altitude?.toString() || '',
         }));
 

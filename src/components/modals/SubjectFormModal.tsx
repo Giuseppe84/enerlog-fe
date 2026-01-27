@@ -66,6 +66,7 @@ export function SubjectModal({ subject, isOpen, setIsOpen, setSubject }: Subject
   const type = form.watch("type");
   const taxCodeValue = form.watch("taxCode");
   const { user } = useAuth();
+  
   const handleSuccess = () => {
     toast.success("Soggetto salvato con successo", {
       description: "I dati del soggetto sono stati salvati correttamente.",
