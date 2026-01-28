@@ -7,20 +7,20 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Controller, UseFormReturn } from "react-hook-form";
-import { buildingType } from "@/data/properties";
+import { propertyTypeOptions } from "@/data/properties";
 import { PropertyFormValues } from "@/validators/propertySchema";
 
-interface BuildingTypeSelectProps {
+interface PropertyTypeSelectProps {
   form: UseFormReturn<PropertyFormValues>;
-  name?: "buildingType"; // campo del form
+  name?: "propertyType"; // campo del form
   label?: string;
 }
 
-export function BuildingTypeSelect({
+export function PropertyTypeSelect({
   form,
-  name = "buildingType",
-  label = "Tipo di edificio",
-}: BuildingTypeSelectProps) {
+  name = "propertyType",
+  label = "Tipo di proprietà",
+}: PropertyTypeSelectProps) {
   return (
     <Controller
       name={name}
@@ -38,7 +38,7 @@ export function BuildingTypeSelect({
             </SelectTrigger>
 
             <SelectContent>
-              {buildingType.map(dest => (
+              {propertyTypeOptions.map(dest => (
                 <SelectItem key={dest.code} value={dest.code}>
                   {dest.name}
                 </SelectItem>

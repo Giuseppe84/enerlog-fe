@@ -20,11 +20,11 @@ export interface Property {
 
   latitude?: number | null;
   longitude?: number | null;
-
+ 
   propertyType: 'RESIDENTIAL' | 'COMMERCIAL' | 'INDUSTRIAL' | string;
-  buildingType: 'APARTMENT' | 'HOUSE' | 'VILLA' | string;
-  usageDestination: 'MAIN_HOME' | 'SECOND_HOME' | string;
-
+  buildingType: 'APARTMENT' | 'DETACHED_HOUSE' | 'SEMI_DETACHED' | 'TERRACED'|'CONDOMINIUM'|'FARMHOUSE'|string;
+  usageDestination: 'MAIN_RESIDENCE'| 'SECOND_HOME'| 'RENTAL'|'OFFICE'|'COMMERCIAL'|'WAREHOUSE'| string;
+  conditionStatus:'NEW'|'GOOD'|'RENOVATED'|'TO_RENOVATE'|'POOR'|string,
   yearBuilt?: number;
   renovationYear?: number;
   floors?: number;
@@ -53,7 +53,7 @@ export interface Property {
   hasPVSystem?: boolean;
   hasStorageSystem?: boolean;
 
-  conditionStatus?: string;
+
   seismicClass?: string;
   isHistoricalBuilding?: boolean;
   isHabitable?: boolean;

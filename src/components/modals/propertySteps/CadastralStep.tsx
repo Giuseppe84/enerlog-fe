@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button";
 import { PropertyFormValues } from "@/validators/propertySchema";
 import { Trash2, Plus } from "lucide-react";
 import { CadastralCategorySelect } from "@/components/fields/cadastral-category-select"
+import { Label } from "@/components/ui/label";
 
+import CitySearch from '@/components/fields/city-search';
 
 interface StepProps {
   form: UseFormReturn<PropertyFormValues>;
@@ -35,9 +37,29 @@ export function CadastralStep({ form }: StepProps) {
     <div className="flex flex-col gap-4">
       <h3 className="font-semibold">Dati catastali</h3>
 
-      <span>Comune: {municipality} - Codice catastale: {municipalityCode}</span>
+      {municipality && <span>Comune: {municipality} - Codice catastale: {municipalityCode}</span>}
       {/* errore generale */}
 
+      {!municipality && <Controller name="city" control={form.control} render={({ field, fieldState }) => (
+        <div className="space-y-2">
+          <Label htmlFor="city">Città *</Label>
+
+
+          <CitySearch onChange={(postalCode) => {
+            form.setValue("zip", postalCode.postalCode);
+            form.setValue("province", postalCode.provinceCode || "");
+            form.setValue("city", postalCode.placeName || "");
+            form.setValue("municipality", postalCode.placeName);
+            form.setValue("latitude", parseFloat(postalCode.lat));
+            form.setValue("longitude", parseFloat(postalCode.lng));
+            form.setValue("municipalityCode", postalCode.municipalityCode);
+            form.setValue("country", "IT");
+          }} value={form.getValues("city") ?? ""} />
+
+          {fieldState.error && <p className="text-sm text-destructive">{fieldState.error.message}</p>}
+        </div>
+      )} />
+      }
       {cadastralError?.root?.message && (
         <p className="text-sm text-destructive">
           {cadastralError.root.message}

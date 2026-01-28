@@ -6,12 +6,32 @@ import { Textarea } from "@/components/ui/textarea";
 import { PropertyFormValues } from "@/validators/propertySchema"
 import { UsageDestinationSelect } from "@/components/fields/usage-destination-selector"
 import { BuildingTypeSelect } from "@/components/fields/building-types-selector"
-
+import { PropertyTypeSelect } from "@/components/fields/property-types-selector";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 
 interface StepProps {
   form: UseFormReturn<PropertyFormValues>
 }
+
+export type conditionStatusTypeOptions = {
+  code: string;
+  name: string;
+};
+
+
+const conditionStatus: conditionStatusTypeOptions[] = [
+  { code: "NEW", name: "Nuova costruzione" },
+  { code: "GOOD", name: "Costruzione in buone condizioni" },
+  { code: "TO_RENOVATE", name: "Costruzione da riqualificare" },
+  { code: "POOR", name: "Costruzione da ristrutturare" }
+]
 
 
 export function BuildingStep({ form }: StepProps) {
@@ -50,13 +70,54 @@ export function BuildingStep({ form }: StepProps) {
           </div>
         )}
       />
+      <BuildingTypeSelect
+        form={form}
+        label="Tipologia dell’immobile"
+      />
       <UsageDestinationSelect
         form={form}
         label="Destinazione d’uso dell’immobile"
       />
-      <BuildingTypeSelect
+
+      <Controller
+        name="conditionStatus"
+        control={form.control}
+        render={({ field, fieldState }) => (
+          <div className="space-y-2">
+            <Label>Condizioni</Label>
+
+            <Select
+              value={field.value ?? ""}
+              onValueChange={field.onChange}
+            >
+              <SelectTrigger className="w-[260px]">
+                <SelectValue placeholder="Seleziona il tipo di edificio" />
+              </SelectTrigger>
+
+              <SelectContent>
+                {conditionStatus.map(dest => (
+                  <SelectItem key={dest.code} value={dest.code}>
+                    {dest.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {fieldState.error && (
+              <p className="text-sm text-destructive">
+                {fieldState.error.message}
+              </p>
+            )}
+          </div>
+        )}
+      />
+
+
+
+
+      <PropertyTypeSelect
         form={form}
-        label="Tipologia dell’immobile"
+        label="Tipologia proprietà"
       />
       <Controller
         name="yearBuilt"
@@ -105,32 +166,36 @@ export function BuildingStep({ form }: StepProps) {
           </div>
         )}
       />
-
-      {[
-        "hasElevator",
-        "hasGarage",
-        "hasParking",
-        "hasGarden",
-        "hasBalcony",
-        "hasTerrace",
-      ].map((fieldName) => (
-        <Controller
-          key={fieldName}
-          name={fieldName}
-          control={form.control}
-          render={({ field, fieldState }) => (
-            <div className="flex items-center gap-2">
-              <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-              <Label>{fieldName.replace("has", "")}</Label>
-              {fieldState.error && (
-                <p className="text-sm text-destructive">
-                  {fieldState.error.message}
-                </p>
-              )}
-            </div>
-          )}
-        />
-      ))}
+      <div className="grid grid-cols-3 gap-4">
+        {[
+          "hasElevator",
+          "hasGarage",
+          "hasParking",
+          "hasGarden",
+          "hasBalcony",
+          "hasTerrace",
+          "isHistoricalBuilding",
+          "isHabitable",
+          "hasAgibility"
+        ].map((fieldName) => (
+          <Controller
+            key={fieldName}
+            name={fieldName}
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <div className="flex items-center gap-2">
+                <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                <Label>{fieldName.replace("has", "")}</Label>
+                {fieldState.error && (
+                  <p className="text-sm text-destructive">
+                    {fieldState.error.message}
+                  </p>
+                )}
+              </div>
+            )}
+          />
+        ))}
+      </div>
     </div>
   );
 }

@@ -7,7 +7,13 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { useForm, Controller, SubmitHandler, UseFormReturn } from 'react-hook-form';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs"
+import { useForm, Controller, SubmitHandler, FieldErrors } from 'react-hook-form';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { SetStateAction, useEffect, useState } from "react";
@@ -22,6 +28,7 @@ import { OwnerStep } from "./propertySteps/OwnerStep";
 import { propertySchema, PropertyFormValues } from "@/validators/propertySchema"
 import { createOrUpdateProperty } from "@/api/properties"
 import { toast } from "sonner";
+import { generateBuildingName } from "@/utils/generate-building-name";
 
 interface PropertyFormModalProps {
   open: boolean;
@@ -30,9 +37,6 @@ interface PropertyFormModalProps {
   setProperty: (data: Property) => void;
 }
 
-interface StepProps {
-  form: UseFormReturn<PropertyFormValues>;
-}
 
 
 export function PropertyFormModal({
@@ -42,67 +46,71 @@ export function PropertyFormModal({
   setProperty,
 }: PropertyFormModalProps) {
 
+  const [selectedOwner, setSelectedOwner] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
 
-  const [currentStep, setCurrentStep] = useState(0);
-
-
-
+  const STEP_FIELDS: Record<number, (keyof PropertyFormValues)[]> = {
+    0: ["ownerId"],
+    1: ["address", "city", "buildingType"],
+    2: ["cadastralData"],
+    3: ["yearBuilt", "renovationYear"],
+    4: ["sup", "supCommercial", "supLand", "volume", "floors"],
+    5: ["energyClass", "EPglren"],
+  };
+  const TAB_INDEX: Record<string, number> = {
+    owner: 0,
+    location: 1,
+    cadastral: 2,
+    building: 3,
+    surfaces: 4,
+    energy: 5,
+  };
   const EMPTY_PROPERTY_FORM: PropertyFormValues = {
     address: "",
     city: "",
     province: "",
     zip: "",
     country: "IT",
-
-    yearBuilt: undefined,
-    renovationYear: undefined,
+    municipalityId: undefined,
+    yearBuilt: 1990,
+    renovationYear: 1990,
     hasElevator: false,
     hasGarage: false,
     hasParking: false,
     hasGarden: false,
     hasBalcony: false,
     hasTerrace: false,
-
-    sup: undefined,
-    supCommercial: undefined,
-    supLand: undefined,
-    volume: undefined,
-
-    energyClass: undefined,
-    EPglren: undefined,
-    EPglnren: undefined,
-    co2: undefined,
+    isNzeb: false,
+    buildingType: 'APARTMENT',
+    usageDestination: 'MAIN_RESIDENCE',
+    propertyType: 'RESIDENTIAL',
+    conditionStatus: 'GOOD',
+    sup: 100,
+    supCommercial: 100,
+    supLand: 100,
+    volume: 300,
+    floors: 1,
+    energyClass: "G",
+    EPglren: 400,
+    EPglnren: 400,
+    co2: 400,
+    energyConsumption: 400,
 
     cadastralData: [],
 
     ownerId: undefined,
     notes: "",
   };
-  const STEPS = [
-    { id: 0, label: "Localizzazione" },
-    { id: 1, label: "Edificio" },
-    { id: 2, label: "Superfici" },
-    { id: 3, label: "Energia" },
-    { id: 4, label: "Catasto" },
-    { id: 5, label: "Proprietario" },
-  ]
-  const STEP_FIELDS: Record<number, (keyof PropertyFormValues)[]> = {
-    0: ["address", "city", "province", "zip", "country"],
-    1: [
-      "yearBuilt",
-      "renovationYear",
-      "hasElevator",
-      "hasGarage",
-      "hasParking",
-      "hasGarden",
-      "hasBalcony",
-      "hasTerrace",
-    ],
-    2: ["sup", "supCommercial", "supLand", "volume"],
-    3: ["energyClass", "EPglren", "EPglnren", "co2"],
-    4: ["cadastralData"],
-    5: ["ownerId", "notes"],
-  };
+  function stepHasErrors(
+    stepIndex: number,
+    errors: FieldErrors<PropertyFormValues>
+  ): boolean {
+    const fields = STEP_FIELDS[stepIndex] ?? [];
+    return fields.some(field => !!errors[field]);
+  }
+
   const form = useForm<PropertyFormValues>({
     resolver: zodResolver(propertySchema),
     defaultValues: property
@@ -111,79 +119,38 @@ export function PropertyFormModal({
     mode: "onBlur",
   });
 
-  function stepHasErrors(
-    stepIndex: number,
-    errors: typeof form.formState.errors
-  ) {
-    const fields = STEP_FIELDS[stepIndex];
+  const { watch, setValue, getValues } = form;
 
-    return fields.some((field) => {
-      const error = errors[field];
-      if (!error) return false;
+  // osserviamo i campi che ci interessano
+  const owner = watch("ownerId");
+  const address = watch("address");
+  const city = watch("city");
+  const buildingType = watch("buildingType");
+  const buildingName = watch("name");
 
-      // array (es. cadastralData)
-      if (Array.isArray(error)) return error.length > 0;
-
-      return true;
+  useEffect(() => {
+    const generatedName = generateBuildingName({
+      ownerName: selectedOwner?.name,
+      address,
+      city,
+      buildingType,
     });
-  }
 
-  function StepIndicator({
-    current,
-    setStep,
-  }: {
-    current: number;
-    setStep: (data: number) => void;
-  }) {
-    const { errors } = form.formState;
+    if (!generatedName) return;
 
-    return (
-      <div className="h-24 flex flex-wrap gap-2 mb-7">
-        {STEPS.map((step, index) => {
-          const hasErrors = stepHasErrors(index, errors);
+    // non sovrascrive se l’utente ha scritto a mano
+    if (form.formState.dirtyFields.buildingName) return;
 
-          return (
-            <div key={step.id} className="flex items-center gap-2 ml-2">
-              <div
-                onClick={() => setStep(index)}
-                className={`rounded-full flex items-center justify-center text-sm font-semibold cursor-pointer
-              ${index === current
-                    ? "h-6 w-6 bg-primary text-primary-foreground"
-                    : hasErrors
-                      ? "h-5 w-5 bg-destructive text-destructive-foreground"
-                      : "h-5 w-5 bg-muted text-muted-foreground"
-                  }`}
-              >
-                {index + 1}
-              </div>
+    setValue("name", generatedName, {
+      shouldDirty: true,
+    });
+  }, [
+    selectedOwner?.name,
+    address,
+    city,
+    buildingType,
+  ]);
 
-              <span
-                className={`text-sm font-medium hidden sm:block
-              ${hasErrors
-                    ? "text-destructive"
-                    : index === current
-                      ? "text-foreground"
-                      : "text-muted-foreground"
-                  }`}
-              >
-                {step.label}
-              </span>
-            </div>
-          );
-        })}
-        <Separator />
-      </div>
-    );
-  }
-
-
-  function next() {
-    setCurrentStep(s => Math.min(s + 1, STEPS.length - 1));
-  }
-
-  function prev() {
-    setCurrentStep(s => Math.max(s - 1, 0));
-  }
 
   const handleSuccess = (message: string) => {
     toast.success("Soggetto salvato con successo", {
@@ -193,7 +160,7 @@ export function PropertyFormModal({
   };
 
   const handleError = (message?: string) => {
-    
+
     toast.success("Soggetto salvato con successo", {
       description: message,
     });
@@ -203,7 +170,7 @@ export function PropertyFormModal({
 
     try {
 
-
+      console.log("ddds");
 
       const response = await createOrUpdateProperty({ ...values as Property, id: property?.id });
       console.log("API response:", response);
@@ -223,7 +190,7 @@ export function PropertyFormModal({
 
 
     <Dialog open={open} onOpenChange={setIsOpen} >
-      <DialogContent className=" h-[92vh] max-h-[90vh] flex flex-col sm:max-w-[600px]">
+      <DialogContent className=" h-[92vh] max-h-[90vh] flex flex-col sm:max-w-[700px]">
         <DialogHeader>
           <DialogTitle>
             {property ? "Modifica edificio" : "Nuovo edificio"}
@@ -231,37 +198,65 @@ export function PropertyFormModal({
         </DialogHeader>
 
 
-        <StepIndicator current={currentStep} setStep={setCurrentStep} />
+
         <div className="flex-1 overflow-y-auto px-4 py-2">
           <form id="property-form" onSubmit={form.handleSubmit(onSubmit)} >
 
+            <Tabs defaultValue="owner" className="w-full">
+              <TabsList className="w-full flex flex-wrap">
+                {[
+                  { value: "owner", label: "Proprietario" },
+                  { value: "location", label: "Ubicazione" },
+                  { value: "cadastral", label: "Dati catastali" },
+                  { value: "building", label: "Caratteristiche" },
+                  { value: "surfaces", label: "Superfici" },
+                  { value: "energy", label: "Energia" },
+                ].map(tab => {
+                  const stepIndex = TAB_INDEX[tab.value];
+                  const hasError = stepHasErrors(
+                    stepIndex,
+                    form.formState.errors
+                  );
 
-            {currentStep === 0 && <LocationStep form={form} />}
-            {currentStep === 1 && <BuildingStep form={form} />}
-            {currentStep === 2 && <SurfaceStep form={form} />}
-            {currentStep === 3 && <EnergyStep form={form} />}
-            {currentStep === 4 && <CadastralStep form={form} />}
-            {currentStep === 5 && <OwnerStep form={form} />}
+                  return (
+                    <TabsTrigger
+                      key={tab.value}
+                      value={tab.value}
+                      disabled={tab.value !== "owner" && !owner}
+                      className={[
+                        hasError &&
+                        "border border-destructive text-destructive data-[state=active]:bg-destructive/10",
+                      ]
+                        .filter(Boolean)
+                        .join(" ")}
+                    >
+                      {tab.label}
+                      {hasError && (
+                        <span className="ml-2 text-xs font-bold">•</span>
+                      )}
+                    </TabsTrigger>
+                  );
+                })}
+              </TabsList>
+
+              <TabsContent value="owner"><OwnerStep form={form} setSelectedOwner={setSelectedOwner} /></TabsContent>
+              <TabsContent value="location"><LocationStep form={form} /></TabsContent>
+              <TabsContent value="cadastral"><CadastralStep form={form} /></TabsContent>
+              <TabsContent value="building"><BuildingStep form={form} /></TabsContent>
+              <TabsContent value="surfaces"><SurfaceStep form={form} /></TabsContent>
+              <TabsContent value="energy"><EnergyStep form={form} /></TabsContent>
+            </Tabs>
+
+
           </form>
         </div>
 
         <DialogFooter className="flex justify-between border-t mt-5 p-4 bg-background">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={prev}
-            disabled={currentStep === 0}
-          >
-            Indietro
-          </Button>
 
-          {currentStep < STEPS.length - 1 ? (
-            <Button type="button" onClick={next}>Avanti</Button>
-          ) : (
-            <Button form="property-form" type="submit" >
-              {property ? "Salva modifiche" : "Crea edificio"}
-            </Button>
-          )}
+
+          <Button form="property-form" type="submit" >
+            {property ? "Salva modifiche" : "Crea edificio"}
+          </Button>
         </DialogFooter>
 
       </DialogContent>
@@ -269,3 +264,201 @@ export function PropertyFormModal({
 
   );
 }
+
+
+
+/*
+ZodError: [
+  {
+    "code": "invalid_value",
+    "values": [
+      "APARTMENT",
+      "DETACHED_HOUSE",
+      "SEMI_DETACHED",
+      "TERRACED",
+      "CONDOMINIUM",
+      "FARMHOUSE"
+    ],
+    "path": [
+      "buildingType"
+    ],
+    "message": "Invalid option: expected one of \"APARTMENT\"|\"DETACHED_HOUSE\"|\"SEMI_DETACHED\"|\"TERRACED\"|\"CONDOMINIUM\"|\"FARMHOUSE\""
+  },
+  {
+    "code": "invalid_value",
+    "values": [
+      "MAIN_RESIDENCE",
+      "SECOND_HOME",
+      "RENTAL",
+      "OFFICE",
+      "COMMERCIAL",
+      "WAREHOUSE"
+    ],
+    "path": [
+      "usageDestination"
+    ],
+    "message": "Invalid option: expected one of \"MAIN_RESIDENCE\"|\"SECOND_HOME\"|\"RENTAL\"|\"OFFICE\"|\"COMMERCIAL\"|\"WAREHOUSE\""
+  },
+  {
+    "expected": "number",
+    "code": "invalid_type",
+    "path": [
+      "yearBuilt"
+    ],
+    "message": "Invalid input: expected number, received null"
+  },
+  {
+    "expected": "number",
+    "code": "invalid_type",
+    "path": [
+      "renovationYear"
+    ],
+    "message": "Invalid input: expected number, received null"
+  },
+  {
+    "expected": "number",
+    "code": "invalid_type",
+    "path": [
+      "floors"
+    ],
+    "message": "Invalid input: expected number, received null"
+  },
+  {
+    "expected": "number",
+    "code": "invalid_type",
+    "path": [
+      "totalUnits"
+    ],
+    "message": "Invalid input: expected number, received null"
+  },
+  {
+    "expected": "number",
+    "code": "invalid_type",
+    "path": [
+      "floorNumber"
+    ],
+    "message": "Invalid input: expected number, received null"
+  },
+  {
+    "expected": "number",
+    "code": "invalid_type",
+    "path": [
+      "sup"
+    ],
+    "message": "Invalid input: expected number, received null"
+  },
+  {
+    "expected": "number",
+    "code": "invalid_type",
+    "path": [
+      "supCommercial"
+    ],
+    "message": "Invalid input: expected number, received null"
+  },
+  {
+    "expected": "number",
+    "code": "invalid_type",
+    "path": [
+      "supLand"
+    ],
+    "message": "Invalid input: expected number, received null"
+  },
+  {
+    "expected": "number",
+    "code": "invalid_type",
+    "path": [
+      "volume"
+    ],
+    "message": "Invalid input: expected number, received null"
+  },
+  {
+    "code": "invalid_value",
+    "values": [
+
+      "GAS",
+      "ELECTRIC",
+      "HEAT_PUMP",
+      "DISTRICT",
+      "BIOMASS",
+
+      "NONE"
+    ],
+    "path": [
+      "heatingType"
+    ],
+    "message": "Invalid option: expected one of \"GAS\"|\"ELECTRIC\"|\"HEAT_PUMP\"|\"DISTRICT\"|\"BIOMASS\"|\"NONE\""
+  },
+  {
+    "code": "invalid_value",
+    "values": [
+      "SPLIT",
+
+      "VRF",
+      "HEAT_PUMP",
+
+      "NONE"
+    ],
+    "path": [
+      "coolingType"
+    ],
+    "message": "Invalid option: expected one of \"SPLIT\"|\"VRF\"|\"HEAT_PUMP\"|\"NONE\""
+  },
+  {
+    "code": "invalid_value",
+    "values": [
+      "E1_RESIDENTIAL",
+      "E2_OFFICE",
+      "E3_HEALTHCARE",
+      "E4_RECREATIONAL",
+      "E5_COMMERCIAL",
+      "E6_SPORTS",
+      "E7_EDUCATIONAL",
+      "E8_INDUSTRIAL",
+      "E9_OTHER"
+    ],
+    "path": [
+      "energyUsageType"
+    ],
+    "message": "Invalid option: expected one of \"E1_RESIDENTIAL\"|\"E2_OFFICE\"|\"E3_HEALTHCARE\"|\"E4_RECREATIONAL\"|\"E5_COMMERCIAL\"|\"E6_SPORTS\"|\"E7_EDUCATIONAL\"|\"E8_INDUSTRIAL\"|\"E9_OTHER\""
+  },
+  {
+    "code": "invalid_value",
+    "values": [
+
+      "NEW",
+      "GOOD",
+      "RENOVATED",
+      "TO_RENOVATE",
+
+      "POOR"
+    ],
+    "path": [
+      "conditionStatus"
+    ],
+    "message": "Invalid option: expected one of \"NEW\"|\"GOOD\"|\"RENOVATED\"|\"TO_RENOVATE\"|\"POOR\""
+  },
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "seismicClass"
+    ],
+    "message": "Invalid input: expected string, received null"
+  },
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "municipalityId"
+    ],
+    "message": "Invalid input: expected string, received null"
+  },
+  {
+    "code": "unrecognized_keys",
+    "keys": [
+      "subject"
+    ],
+    "path": [],
+    "message": "Unrecognized key: \"subject\""
+  }
+]*/

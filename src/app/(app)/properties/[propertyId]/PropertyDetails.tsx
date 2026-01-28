@@ -20,7 +20,7 @@ import { Property } from "@/types/property";
 import { EnergyClassBadge } from "@/components/energy-class-badge";
 import { getBuildingType, getUsageDestination, getEnergyUsageType, getCadastralCategoriese } from "@/data/properties"
 import { useEffect, useState } from "react";
-
+import  EnergyClassScale from "@/components/fields/energy-class-scale"
 interface PropertyDetailPageProps {
   property: Property;
 }
@@ -126,6 +126,7 @@ export function PropertyDetailPage({ property }: PropertyDetailPageProps) {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 text-sm">
+          
               <EnergyClassBadge value={property.energyClass} />
               <Info label="Destinazione d'uso D.P.R. 412/93" value={eu?.name} />
               <Separator />

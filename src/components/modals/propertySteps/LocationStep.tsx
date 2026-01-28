@@ -18,23 +18,8 @@ export function LocationStep({ form }: StepProps) {
   const longitude = form.watch("longitude");
   return (
     <div className="flex flex-col gap-4">
-      <h3 className="font-semibold">Localizzazione</h3>
-      <Controller
-        name="address"
-        control={form.control}
-        render={({ field,fieldState }) => (
-          <div className="col-span-2">
-            <Label>Indirizzo</Label>
-            <Input {...field} />
-            
-                {fieldState.error && (
-              <p className="text-sm text-destructive">
-                {fieldState.error.message}
-              </p>
-            )}
-          </div>
-        )}
-      />
+      <h3 className="font-semibold">Ubicazione</h3>
+
 
       <Controller name="city" control={form.control} render={({ field, fieldState }) => (
         <div className="space-y-2">
@@ -46,6 +31,7 @@ export function LocationStep({ form }: StepProps) {
             form.setValue("province", postalCode.provinceCode || "");
             form.setValue("city", postalCode.placeName || "");
             form.setValue("municipality", postalCode.placeName);
+             form.setValue("municipalityId", postalCode.municipalityId);
             form.setValue("latitude", parseFloat(postalCode.lat));
             form.setValue("longitude", parseFloat(postalCode.lng));
             form.setValue("municipalityCode", postalCode.municipalityCode);
@@ -63,8 +49,8 @@ export function LocationStep({ form }: StepProps) {
           <div>
             <Label>Provincia</Label>
             <Input {...field} />
-               
-                {fieldState.error && (
+
+            {fieldState.error && (
               <p className="text-sm text-destructive">
                 {fieldState.error.message}
               </p>
@@ -76,12 +62,28 @@ export function LocationStep({ form }: StepProps) {
       <Controller
         name="zip"
         control={form.control}
-        render={({ field ,fieldState}) => (
+        render={({ field, fieldState }) => (
           <div>
             <Label>CAP</Label>
             <Input {...field} />
-                 
-                {fieldState.error && (
+
+            {fieldState.error && (
+              <p className="text-sm text-destructive">
+                {fieldState.error.message}
+              </p>
+            )}
+          </div>
+        )}
+      />
+      <Controller
+        name="address"
+        control={form.control}
+        render={({ field, fieldState }) => (
+          <div className="col-span-2">
+            <Label>Indirizzo</Label>
+            <Input {...field} />
+
+            {fieldState.error && (
               <p className="text-sm text-destructive">
                 {fieldState.error.message}
               </p>

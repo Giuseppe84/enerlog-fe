@@ -42,36 +42,38 @@ export default function Page() {
   const [searchTerm, setSearchTerm] = useState('');
   const [editOpen, setEditOpen] = useState(false);
 
-  useEffect(() => {
-  setPage(1);
-   setQuery(searchTerm)
-}, [searchTerm]);
+  const loadSubjects = async () => {
+    try {
+      const res = await fetchSubjects(page, limit, query);
+      console.log('Fetched subjects:', { subjects });
+      // Ensure data is an array before setting it to state
+      setSubjects(Array.isArray(res.data) ? res.data : []);
+      setTotalPages(res.meta.totalPages);
+      setTotal(res.meta.total);
+    } catch (error) {
+      console.error(t('clients.error.loadingClients'), error);
+      // Set empty array on error
+      setSubjects([]);
+    }
+  };
 
   useEffect(() => {
-    const loadSubjects = async () => {
-      try {
-        const res = await fetchSubjects(page, limit, query);
-        console.log('Fetched subjects:', { subjects });
-        // Ensure data is an array before setting it to state
-        setSubjects(Array.isArray(res.data) ? res.data : []);
-        setTotalPages(res.meta.totalPages);
-        setTotal(res.meta.total);
-      } catch (error) {
-        console.error(t('clients.error.loadingClients'), error);
-        // Set empty array on error
-        setSubjects([]);
-      }
-    };
+    setPage(1);
+    setQuery(searchTerm)
+  }, [searchTerm]);
+
+  useEffect(() => {
+
     loadSubjects();
-  }, [page,query]);
+  }, [page, query]);
 
 
-const filteredSubjects = subjects.filter(subject =>
-(subject.firstName?.toLowerCase() ?? '').includes(searchTerm.toLowerCase()) ||
-(subject.lastName?.toLowerCase() ?? '').includes(searchTerm.toLowerCase()) ||
-(subject.companyName?.toLowerCase() ?? '').includes(searchTerm.toLowerCase()) ||
-(subject.taxCode?.toLowerCase() ?? '').includes(searchTerm.toLowerCase())
-);
+  const filteredSubjects = subjects.filter(subject =>
+    (subject.firstName?.toLowerCase() ?? '').includes(searchTerm.toLowerCase()) ||
+    (subject.lastName?.toLowerCase() ?? '').includes(searchTerm.toLowerCase()) ||
+    (subject.companyName?.toLowerCase() ?? '').includes(searchTerm.toLowerCase()) ||
+    (subject.taxCode?.toLowerCase() ?? '').includes(searchTerm.toLowerCase())
+  );
 
 
   return (

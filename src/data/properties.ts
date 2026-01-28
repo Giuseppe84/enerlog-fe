@@ -22,7 +22,51 @@ export type CadastralCategory = {
   group: "A" | "B" | "C" | "D" | "E" | "F";
 };
 
+export type PropertyTypeOption = {
+  code: string;
+  name: string;
+  icon?: string; // opzionale, utile per badge o select
+};
 
+export const propertyTypeOptions: PropertyTypeOption[] = [
+  {
+    code: "RESIDENTIAL",
+    name: "Residenziale",
+    icon: "home",
+  },
+  {
+    code: "COMMERCIAL",
+    name: "Commerciale",
+    icon: "store",
+  },
+  {
+    code: "INDUSTRIAL",
+    name: "Industriale",
+    icon: "factory",
+  },
+  {
+    code: "AGRICULTURAL",
+    name: "Agricolo",
+    icon: "farm",
+  },
+  {
+    code: "OFFICE",
+    name: "Ufficio",
+    icon: "office-building",
+  },
+  {
+    code: "MIXED",
+    name: "Misto",
+    icon: "layers",
+  },
+];
+
+const propertyTypeMap = Object.fromEntries(
+  propertyTypeOptions.map(pt => [pt.code, pt])
+) as Record<string, PropertyTypeOption>;
+
+export const getPropertyType = (code?: string) =>
+  code ? propertyTypeMap[code] : undefined;
 
 export const buildingType: BuildingType[] = [
     {

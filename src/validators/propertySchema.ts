@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export type PropertyFormValues = z.infer<typeof propertySchema>;
 export const locationSchema = z.object({
+      municipalityId: z.string().length(6).optional(),
     address: z.string().min(3, "Indirizzo obbligatorio"),
     city: z.string().min(2, "Città obbligatoria"),
     province: z.string().optional(),
@@ -35,16 +36,37 @@ export const locationSchema = z.object({
 export const buildingSchema = z.object({
     notes: z.string().optional(),
     name: z.string().optional(),
-    yearBuilt: z.coerce.number().int().optional(),
+    yearBuilt: z.coerce.number().int(),
+    renovationYear: z.coerce.number().int(),
     propertyType: z.string().optional(),
-    renovationYear: z.coerce.number().int().optional(),
     hasElevator: z.boolean().optional(),
     hasGarage: z.boolean().optional(),
     hasParking: z.boolean().optional(),
     hasGarden: z.boolean().optional(),
     hasBalcony: z.boolean().optional(),
     hasTerrace: z.boolean().optional(),
-});
+    conditionStatus: z.string().optional(),
+    seismicClass: z.string().max(10).optional(),
+    isHistoricalBuilding: z.boolean().optional().default(false),
+    isHabitable: z.boolean().optional().default(true),
+    hasAgibility: z.boolean().optional().default(false),
+  })
+  .superRefine((data, ctx) => {
+    const { yearBuilt, renovationYear } = data;
+
+    // valida solo se entrambi sono presenti
+    if (
+      yearBuilt !== undefined &&
+      renovationYear !== undefined &&
+      renovationYear <= yearBuilt
+    ) {
+      ctx.addIssue({
+        path: ["renovationYear"], // 👈 errore associato a questo campo
+        message: "L’anno di ristrutturazione deve essere successivo all’anno di costruzione",
+        code: z.ZodIssueCode.custom,
+      });
+    }
+  });
 
 
 export const surfaceSchema = z.object({
@@ -55,10 +77,14 @@ export const surfaceSchema = z.object({
 });
 
 export const energySchema = z.object({
-    energyClass: z.string().optional(),
-    EPglren: z.coerce.number().optional(),
-    EPglnren: z.coerce.number().optional(),
-    co2: z.coerce.number().optional(),
+  energyClass: z.string().regex(/^(A[1-4]|[A-G])$/).optional(),
+  EPglren: z.number().nonnegative().optional(),
+  EPglnren: z.number().nonnegative().optional(),
+  co2: z.number().nonnegative().optional(),
+  heatingType: z.string().optional(),
+  coolingType: z.string().optional(),
+  energyConsumption: z.number().nonnegative().optional(),
+  isNzeb: z.boolean().optional().default(false),
 });
 export const cadastralSchema = z.object({
     cadastralData: z
@@ -87,4 +113,6 @@ export const propertySchema = locationSchema
     .merge(energySchema)
     .merge(cadastralSchema)
     .merge(ownerSchema);
+
+
 

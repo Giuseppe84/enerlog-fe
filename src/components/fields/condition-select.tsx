@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Controller, UseFormReturn } from "react-hook-form";
-import { buildingType } from "@/data/properties";
+
 import { PropertyFormValues } from "@/validators/propertySchema";
 
 interface BuildingTypeSelectProps {
@@ -15,6 +15,8 @@ interface BuildingTypeSelectProps {
   name?: "buildingType"; // campo del form
   label?: string;
 }
+
+
 
 export function BuildingTypeSelect({
   form,
