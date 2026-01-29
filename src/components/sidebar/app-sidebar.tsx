@@ -12,7 +12,8 @@ import {
   Settings2,
   SquareTerminal,
   FileUser,
-  House
+  House,
+  HandPlatter
 } from "lucide-react"
 import { NavMain } from "@/components/sidebar/nav-main"
 import { NavEntities } from "@/components/sidebar/nav-entities"
@@ -158,6 +159,11 @@ const data = {
       name: "Immobili",
       url: "/properties",
       icon: House,
+    },
+        {
+      name: "Servizi",
+      url: "/services",
+      icon: HandPlatter,
     },
   ]
 }

@@ -13,27 +13,26 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar"
 import { useEffect, useState } from 'react';
-import { fetchSubjects } from '@/api/subjects';
+import { fetchServices } from '@/api/services';
 import { useTranslation } from 'react-i18next';
-import type { Subject } from '@/types/subject'
+import type { Service } from '@/types/service'
 
 import { EmptySubject } from '@/components/emptySubjects';
 import { Button } from '@/components/ui/button';
 
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-
+import { ServiceCard } from './ServiceItem';
 import { Edit, Trash2, Search, UserPlus } from 'lucide-react';
+import {ServiceModal} from "@/components/modals/ServiceFormModal"
 
-import SubjectItem from "./SubjectItem";
-import { SubjectModal } from "@/components/modals/SubjectFormModal";
 
 
 
 export default function Page() {
 
   const { t } = useTranslation();
-  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState('');
   const [limit] = useState(10);
@@ -42,18 +41,18 @@ export default function Page() {
   const [searchTerm, setSearchTerm] = useState('');
   const [editOpen, setEditOpen] = useState(false);
 
-  const loadSubjects = async () => {
+  const loadServices = async () => {
     try {
-      const res = await fetchSubjects(page, limit, query);
-      console.log('Fetched subjects:', { res });
+      const res = await fetchServices();
+      console.log('Fetched services:', { res });
       // Ensure data is an array before setting it to state
-      setSubjects(Array.isArray(res.data) ? res.data : []);
+      setServices(Array.isArray(res.data) ? res.data : []);
       setTotalPages(res.meta.totalPages);
       setTotal(res.meta.total);
     } catch (error) {
       console.error(t('clients.error.loadingClients'), error);
       // Set empty array on error
-      setSubjects([]);
+      setServices([]);
     }
   };
 
@@ -64,17 +63,17 @@ export default function Page() {
 
   useEffect(() => {
 
-    loadSubjects();
+    loadServices();
   }, [page, query]);
 
 
-  const filteredSubjects = subjects.filter(subject =>
-    (subject.firstName?.toLowerCase() ?? '').includes(searchTerm.toLowerCase()) ||
-    (subject.lastName?.toLowerCase() ?? '').includes(searchTerm.toLowerCase()) ||
-    (subject.companyName?.toLowerCase() ?? '').includes(searchTerm.toLowerCase()) ||
-    (subject.taxCode?.toLowerCase() ?? '').includes(searchTerm.toLowerCase())
+  const filteredServices = services.filter(services =>
+    (services.name?.toLowerCase() ?? '').includes(searchTerm.toLowerCase())
   );
-
+  const addService = (newService: Service) => {
+    services.push(newService)
+    setServices(services);
+  };
 
   return (
     <SidebarProvider>
@@ -91,7 +90,7 @@ export default function Page() {
               <BreadcrumbList>
                 <BreadcrumbItem className="hidden md:block">
                   <BreadcrumbLink href="/subjects">
-                    Soggetti
+                    Servizi
                   </BreadcrumbLink>
                 </BreadcrumbItem>
               </BreadcrumbList>
@@ -104,14 +103,14 @@ export default function Page() {
 
 
 
-        {subjects.length === 0 ? <EmptySubject /> : (
+        {services.length === 0 ? <EmptySubject /> : (
 
           <div className="space-y-6 p-5" >
             <div className="flex justify-between items-center">
-              <h1 className="text-3xl font-bold">Soggetti</h1>
+              <h1 className="text-3xl font-bold">Servizi</h1>
               <Button onClick={() => setEditOpen(true)} >
                 <UserPlus className="mr-2 h-4 w-4" />
-                Aggiungi soggetto
+                Aggiungi servizio
               </Button>
             </div>
 
@@ -130,17 +129,20 @@ export default function Page() {
                 <CardTitle>{t('clients.listTitle')}</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex flex-col gap-4">
-                  {filteredSubjects.map(subject => (
+                <div className="flex flex-wrap gap-4">
+
+                  {filteredServices.map(service => (
 
 
-                    <SubjectItem subject={subject} key={subject.id} />
+                    <ServiceCard service={service} key={service.id} />
 
                   ))}
+
+
                 </div>
                 <div className="flex justify-between items-center mt-4">
                   <div className="text-sm text-muted-foreground">
-                    Totale: {total} soggetti
+                    Totale: {total} servizi
                   </div>
                   {searchTerm && (
                     <p className="text-sm text-muted-foreground">
@@ -173,10 +175,10 @@ export default function Page() {
                 </div>
               </CardContent>
             </Card>
-            <SubjectModal isOpen={editOpen} setIsOpen={setEditOpen} subject={null} setSubject={setSubjects} />
+
           </div>
         )}
-
+        <ServiceModal isOpen={editOpen} setIsOpen={setEditOpen} service={{}} setService={(service) => addService(service)} />
       </SidebarInset>
     </SidebarProvider>
   )

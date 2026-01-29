@@ -61,6 +61,7 @@ export function SubjectModal({ subject, isOpen, setIsOpen, setSubject }: Subject
       type: subject?.type ?? "PHYSICAL",
       ...subject,
     },
+      mode: "onBlur",
   });
   const { t } = useTranslation();
   const type = form.watch("type");
