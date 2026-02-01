@@ -73,7 +73,7 @@ export default function Page() {
 
                     // fetchWorks(),
                 ]);
-
+console.log(propertyData)
                 setProperty(propertyData);
                 //setProperties(propertiesData || []);
                 setInitialized(true);

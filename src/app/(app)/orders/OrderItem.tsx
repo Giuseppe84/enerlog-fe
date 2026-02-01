@@ -66,7 +66,7 @@ export default function OrderCard({ order }: OrderCardProps) {
         <div className="text-sm">
           <span className="text-muted-foreground">Cliente:</span>{' '}
           <span className="font-medium">
-            {order.client?.firstName}   {order.client?.lastName}
+            {order.client?.firstName} {order.client?.lastName}
           </span>
         </div>
 

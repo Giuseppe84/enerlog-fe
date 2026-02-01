@@ -48,6 +48,7 @@ export const createOrUpdateProperty = async (property: Property) => {
   delete propertyCopy.municipality;
   delete propertyCopy.createdAt;
   delete propertyCopy.updatedAt;
+   delete propertyCopy.id;
   if (!property.id) {
     // Creazione nuova property
     const response = await api.post('/properties', propertyCopy);
@@ -56,7 +57,7 @@ export const createOrUpdateProperty = async (property: Property) => {
 
   console.log(propertyCopy);
 
-  const response = await api.put(`/properties`, propertyCopy);
+  const response = await api.put(`/properties/${property.id}`, propertyCopy);
   return response.data;
 };
 

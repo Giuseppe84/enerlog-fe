@@ -1,14 +1,15 @@
-import { useState } from "react";
-import { Search, Filter, X } from "lucide-react";
+import { ClientSelector } from '@/components/fields/client-selector';
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -16,9 +17,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import type { Client } from '@/types/client';
 import type { OrdersFilter } from "@/types/order";
-import { Dispatch, SetStateAction } from "react";
-import { subMonths, format, startOfWeek, startOfMonth, endOfWeek, endOfMonth } from "date-fns";
+import { endOfMonth, endOfWeek, format, startOfMonth, startOfWeek, subMonths } from "date-fns";
+import { Filter, Search, X } from "lucide-react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
+
+
 
 interface SearchWithFiltersProps {
   filters: OrdersFilter;
@@ -34,6 +39,8 @@ export default function SearchWithFilters({
   setSearchTerm,
 }: SearchWithFiltersProps) {
   const [popoverOpen, setPopoverOpen] = useState(false);
+  const [isClientSelectorOpen, setClientSelectorOpen] = useState(false);
+  const [client, setClient] = useState<Client | null>(null);
 
   const handleFilterChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -45,6 +52,15 @@ export default function SearchWithFilters({
     }));
   };
 
+  useEffect(() => {
+
+    const clientId = client?.id;
+    setFilters((prev) => ({
+      ...prev,
+      clientId
+    }));
+
+  }, [client]);
   const applyFilters = () => {
     console.log("Filtri applicati:", filters, "Termine:", searchTerm);
     setPopoverOpen(false);
@@ -113,13 +129,14 @@ export default function SearchWithFilters({
 
             {/* Client ID */}
             <div>
-              <Label>Client ID</Label>
-              <Input
-                name="clientId"
-                value={filters.clientId || ""}
-                onChange={handleFilterChange}
-                placeholder="Client ID"
-              />
+
+              <Card onClick={() => setClientSelectorOpen(true)} className="p-4 text-sm text-muted-foreground">
+                <span>
+                  {client
+                    ? `${client.companyName ?? ""} ${client.firstName ?? ""} ${client.lastName ?? ""}`.trim()
+                    : "Seleziona cliente"}
+                </span>
+              </Card>
             </div>
 
             {/* Status */}
@@ -223,6 +240,24 @@ export default function SearchWithFilters({
           </div>
         </PopoverContent>
       </Popover>
+      <Dialog open={isClientSelectorOpen} onOpenChange={setClientSelectorOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Seleziona soggetto</DialogTitle>
+            <DialogDescription>
+              Scegli il soggetto da associare all’immobile
+            </DialogDescription>
+          </DialogHeader>
+
+          <ClientSelector
+            onSelectClient={(client) => {
+              console.log(client);
+              setClient(client);
+              setClientSelectorOpen(false);
+            }}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

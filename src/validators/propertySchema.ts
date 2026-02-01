@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export type PropertyFormValues = z.infer<typeof propertySchema>;
 export const locationSchema = z.object({
-      municipalityId: z.string().length(6).optional(),
+    municipalityId: z.string().length(6).optional(),
     address: z.string().min(3, "Indirizzo obbligatorio"),
     city: z.string().min(2, "Città obbligatoria"),
     province: z.string().optional(),
@@ -50,41 +50,45 @@ export const buildingSchema = z.object({
     isHistoricalBuilding: z.boolean().optional().default(false),
     isHabitable: z.boolean().optional().default(true),
     hasAgibility: z.boolean().optional().default(false),
-  })
-  .superRefine((data, ctx) => {
-    const { yearBuilt, renovationYear } = data;
+      heatingType: z.string().optional(),
+    coolingType: z.string().optional(),
 
-    // valida solo se entrambi sono presenti
-    if (
-      yearBuilt !== undefined &&
-      renovationYear !== undefined &&
-      renovationYear <= yearBuilt
-    ) {
-      ctx.addIssue({
-        path: ["renovationYear"], // 👈 errore associato a questo campo
-        message: "L’anno di ristrutturazione deve essere successivo all’anno di costruzione",
-        code: z.ZodIssueCode.custom,
-      });
-    }
-  });
+})
+    .superRefine((data, ctx) => {
+        const { yearBuilt, renovationYear } = data;
+
+        // valida solo se entrambi sono presenti
+        if (
+            yearBuilt !== undefined &&
+            renovationYear !== undefined &&
+            renovationYear <= yearBuilt
+        ) {
+            ctx.addIssue({
+                path: ["renovationYear"], // 👈 errore associato a questo campo
+                message: "L’anno di ristrutturazione deve essere successivo all’anno di costruzione",
+                code: z.ZodIssueCode.custom,
+            });
+        }
+    });
 
 
 export const surfaceSchema = z.object({
-  sup: z.coerce.number().optional(),
-  supCommercial: z.coerce.number().optional(),
-  supLand: z.coerce.number().optional(),
-  volume: z.coerce.number().optional(),
+    sup: z.coerce.number().optional(),
+    supCommercial: z.coerce.number().optional(),
+    supLand: z.coerce.number().optional(),
+    volume: z.coerce.number().optional(),
 });
 
 export const energySchema = z.object({
-  energyClass: z.string().regex(/^(A[1-4]|[A-G])$/).optional(),
-  EPglren: z.number().nonnegative().optional(),
-  EPglnren: z.number().nonnegative().optional(),
-  co2: z.number().nonnegative().optional(),
-  heatingType: z.string().optional(),
-  coolingType: z.string().optional(),
-  energyConsumption: z.number().nonnegative().optional(),
-  isNzeb: z.boolean().optional().default(false),
+    energyClass: z.string().regex(/^(A[1-4]|[A-G])$/).optional(),
+    EPglren: z.number().nonnegative().optional(),
+    EPglnren: z.number().nonnegative().optional(),
+    co2: z.number().nonnegative().optional(),
+  
+    energyConsumption: z.number().nonnegative().optional(),
+    isNzeb: z.boolean().optional().default(false),
+
+
 });
 export const cadastralSchema = z.object({
     cadastralData: z

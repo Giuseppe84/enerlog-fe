@@ -32,7 +32,32 @@ const conditionStatus: conditionStatusTypeOptions[] = [
   { code: "TO_RENOVATE", name: "Costruzione da riqualificare" },
   { code: "POOR", name: "Costruzione da ristrutturare" }
 ]
+const seismicClassOptions = [
+  "A+",
+  "A",
+  "B",
+  "C",
+  "D",
+  "E",
+  "F",
+  "G",
+];
 
+const heatingTypeOptions = [
+  { code: "NONE", label: "Assente" },
+  { code: "BIOMASS", label: "Biomassa" },
+    { code: "GAS", label: "Gas" },
+  { code: "HEAT_PUMP", label: "Pompa di calore" },
+    { code: "ELECTRIC", label: "Elettrico" },
+  { code: "DISTRICT", label: "Teleriscaldamento" },
+];
+
+
+const coolingTypeOptions = [
+  { code: "NONE", label: "Assente" },
+  { code: "SPLIT", label: "Split" },
+  { code: "CENTRALIZED", label: "Centralizzato" },
+];
 
 export function BuildingStep({ form }: StepProps) {
   return (
@@ -158,6 +183,102 @@ export function BuildingStep({ form }: StepProps) {
           <div>
             <Label>Piani</Label>
             <Input type="number" {...field} />
+            {fieldState.error && (
+              <p className="text-sm text-destructive">
+                {fieldState.error.message}
+              </p>
+            )}
+          </div>
+        )}
+      />
+      <Controller
+        name="seismicClass"
+        control={form.control}
+        render={({ field, fieldState }) => (
+          <div className="space-y-2">
+            <Label>Classe sismica</Label>
+
+            <Select
+              value={field.value ?? ""}
+              onValueChange={(v) => field.onChange(v || undefined)}
+            >
+              <SelectTrigger className="w-[260px]">
+                <SelectValue placeholder="Seleziona classe sismica" />
+              </SelectTrigger>
+
+              <SelectContent>
+                {seismicClassOptions.map((cls) => (
+                  <SelectItem key={cls} value={cls}>
+                    {cls}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {fieldState.error && (
+              <p className="text-sm text-destructive">
+                {fieldState.error.message}
+              </p>
+            )}
+          </div>
+        )}
+      />
+      <Controller
+        name="heatingType"
+        control={form.control}
+        render={({ field, fieldState }) => (
+          <div className="space-y-2">
+            <Label>Tipo di riscaldamento</Label>
+
+            <Select
+              value={field.value ?? ""}
+              onValueChange={(v) => field.onChange(v || undefined)}
+            >
+              <SelectTrigger className="w-[260px]">
+                <SelectValue placeholder="Seleziona riscaldamento" />
+              </SelectTrigger>
+
+              <SelectContent>
+                {heatingTypeOptions.map((opt) => (
+                  <SelectItem key={opt.code} value={opt.code}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {fieldState.error && (
+              <p className="text-sm text-destructive">
+                {fieldState.error.message}
+              </p>
+            )}
+          </div>
+        )}
+      />
+      <Controller
+        name="coolingType"
+        control={form.control}
+        render={({ field, fieldState }) => (
+          <div className="space-y-2">
+            <Label>Tipo di raffrescamento</Label>
+
+            <Select
+              value={field.value ?? ""}
+              onValueChange={(v) => field.onChange(v || undefined)}
+            >
+              <SelectTrigger className="w-[260px]">
+                <SelectValue placeholder="Seleziona raffrescamento" />
+              </SelectTrigger>
+
+              <SelectContent>
+                {coolingTypeOptions.map((opt) => (
+                  <SelectItem key={opt.code} value={opt.code}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
             {fieldState.error && (
               <p className="text-sm text-destructive">
                 {fieldState.error.message}

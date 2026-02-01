@@ -67,42 +67,66 @@ export function PropertyFormModal({
     surfaces: 4,
     energy: 5,
   };
-  const EMPTY_PROPERTY_FORM: PropertyFormValues = {
-    address: "",
-    city: "",
-    province: "",
-    zip: "",
-    country: "IT",
-    municipalityId: undefined,
-    yearBuilt: 1990,
-    renovationYear: 1990,
-    hasElevator: false,
-    hasGarage: false,
-    hasParking: false,
-    hasGarden: false,
-    hasBalcony: false,
-    hasTerrace: false,
-    isNzeb: false,
-    buildingType: 'APARTMENT',
-    usageDestination: 'MAIN_RESIDENCE',
-    propertyType: 'RESIDENTIAL',
-    conditionStatus: 'GOOD',
-    sup: 100,
-    supCommercial: 100,
-    supLand: 100,
-    volume: 300,
-    floors: 1,
-    energyClass: "G",
-    EPglren: 400,
-    EPglnren: 400,
-    co2: 400,
-    energyConsumption: 400,
+const EMPTY_PROPERTY_FORM: PropertyFormValues = {
+  address: "",
+  city: "",
+  province: "",
+  zip: "",
+  country: "IT",
 
-    cadastralData: [],
+  municipalityId: undefined,
+  municipalityCode: "",
+  municipality: "",
 
-    ownerId: undefined,
-    notes: "",
-  };
+  longitude: 0,
+  latitude: 0,
+
+  yearBuilt: 1990,
+  renovationYear: 1990,
+  isHistoricalBuilding: false,
+  isHabitable: true,
+  hasAgibility: false,
+  hasElevator: false,
+  hasGarage: false,
+  hasParking: false,
+  hasGarden: false,
+  hasBalcony: false,
+  hasTerrace: false,
+
+  isNzeb: false,
+
+  propertyType: "RESIDENTIAL",
+  conditionStatus: "GOOD",
+
+  sup: 100,
+  supCommercial: 100,
+  supLand: 100,
+  volume: 300,
+
+  energyClass: "G",
+  EPglren: 400,
+  EPglnren: 400,
+  co2: 400,
+  energyConsumption: 400,
+
+  seismicClass: undefined,
+  heatingType: undefined,
+  coolingType: undefined,
+
+  cadastralData: [
+    {
+      municipality: "",
+      municipalityCode: "",
+      category: "",
+      sheet: "",
+      parcel: "",
+      subaltern: "",
+    },
+  ],
+
+  ownerId: undefined,
+  notes: "",
+};
   function stepHasErrors(
     stepIndex: number,
     errors: FieldErrors<PropertyFormValues>
@@ -161,7 +185,7 @@ export function PropertyFormModal({
 
   const handleError = (message?: string) => {
 
-    toast.success("Soggetto salvato con successo", {
+    toast.error("Problemi di salvataggio", {
       description: message,
     });
   };
@@ -184,6 +208,11 @@ export function PropertyFormModal({
 
     }
   }
+
+  const errors = form.formState.errors;
+
+  console.log(errors)
+
 
   return (
 
@@ -266,199 +295,3 @@ export function PropertyFormModal({
 }
 
 
-
-/*
-ZodError: [
-  {
-    "code": "invalid_value",
-    "values": [
-      "APARTMENT",
-      "DETACHED_HOUSE",
-      "SEMI_DETACHED",
-      "TERRACED",
-      "CONDOMINIUM",
-      "FARMHOUSE"
-    ],
-    "path": [
-      "buildingType"
-    ],
-    "message": "Invalid option: expected one of \"APARTMENT\"|\"DETACHED_HOUSE\"|\"SEMI_DETACHED\"|\"TERRACED\"|\"CONDOMINIUM\"|\"FARMHOUSE\""
-  },
-  {
-    "code": "invalid_value",
-    "values": [
-      "MAIN_RESIDENCE",
-      "SECOND_HOME",
-      "RENTAL",
-      "OFFICE",
-      "COMMERCIAL",
-      "WAREHOUSE"
-    ],
-    "path": [
-      "usageDestination"
-    ],
-    "message": "Invalid option: expected one of \"MAIN_RESIDENCE\"|\"SECOND_HOME\"|\"RENTAL\"|\"OFFICE\"|\"COMMERCIAL\"|\"WAREHOUSE\""
-  },
-  {
-    "expected": "number",
-    "code": "invalid_type",
-    "path": [
-      "yearBuilt"
-    ],
-    "message": "Invalid input: expected number, received null"
-  },
-  {
-    "expected": "number",
-    "code": "invalid_type",
-    "path": [
-      "renovationYear"
-    ],
-    "message": "Invalid input: expected number, received null"
-  },
-  {
-    "expected": "number",
-    "code": "invalid_type",
-    "path": [
-      "floors"
-    ],
-    "message": "Invalid input: expected number, received null"
-  },
-  {
-    "expected": "number",
-    "code": "invalid_type",
-    "path": [
-      "totalUnits"
-    ],
-    "message": "Invalid input: expected number, received null"
-  },
-  {
-    "expected": "number",
-    "code": "invalid_type",
-    "path": [
-      "floorNumber"
-    ],
-    "message": "Invalid input: expected number, received null"
-  },
-  {
-    "expected": "number",
-    "code": "invalid_type",
-    "path": [
-      "sup"
-    ],
-    "message": "Invalid input: expected number, received null"
-  },
-  {
-    "expected": "number",
-    "code": "invalid_type",
-    "path": [
-      "supCommercial"
-    ],
-    "message": "Invalid input: expected number, received null"
-  },
-  {
-    "expected": "number",
-    "code": "invalid_type",
-    "path": [
-      "supLand"
-    ],
-    "message": "Invalid input: expected number, received null"
-  },
-  {
-    "expected": "number",
-    "code": "invalid_type",
-    "path": [
-      "volume"
-    ],
-    "message": "Invalid input: expected number, received null"
-  },
-  {
-    "code": "invalid_value",
-    "values": [
-
-      "GAS",
-      "ELECTRIC",
-      "HEAT_PUMP",
-      "DISTRICT",
-      "BIOMASS",
-
-      "NONE"
-    ],
-    "path": [
-      "heatingType"
-    ],
-    "message": "Invalid option: expected one of \"GAS\"|\"ELECTRIC\"|\"HEAT_PUMP\"|\"DISTRICT\"|\"BIOMASS\"|\"NONE\""
-  },
-  {
-    "code": "invalid_value",
-    "values": [
-      "SPLIT",
-
-      "VRF",
-      "HEAT_PUMP",
-
-      "NONE"
-    ],
-    "path": [
-      "coolingType"
-    ],
-    "message": "Invalid option: expected one of \"SPLIT\"|\"VRF\"|\"HEAT_PUMP\"|\"NONE\""
-  },
-  {
-    "code": "invalid_value",
-    "values": [
-      "E1_RESIDENTIAL",
-      "E2_OFFICE",
-      "E3_HEALTHCARE",
-      "E4_RECREATIONAL",
-      "E5_COMMERCIAL",
-      "E6_SPORTS",
-      "E7_EDUCATIONAL",
-      "E8_INDUSTRIAL",
-      "E9_OTHER"
-    ],
-    "path": [
-      "energyUsageType"
-    ],
-    "message": "Invalid option: expected one of \"E1_RESIDENTIAL\"|\"E2_OFFICE\"|\"E3_HEALTHCARE\"|\"E4_RECREATIONAL\"|\"E5_COMMERCIAL\"|\"E6_SPORTS\"|\"E7_EDUCATIONAL\"|\"E8_INDUSTRIAL\"|\"E9_OTHER\""
-  },
-  {
-    "code": "invalid_value",
-    "values": [
-
-      "NEW",
-      "GOOD",
-      "RENOVATED",
-      "TO_RENOVATE",
-
-      "POOR"
-    ],
-    "path": [
-      "conditionStatus"
-    ],
-    "message": "Invalid option: expected one of \"NEW\"|\"GOOD\"|\"RENOVATED\"|\"TO_RENOVATE\"|\"POOR\""
-  },
-  {
-    "expected": "string",
-    "code": "invalid_type",
-    "path": [
-      "seismicClass"
-    ],
-    "message": "Invalid input: expected string, received null"
-  },
-  {
-    "expected": "string",
-    "code": "invalid_type",
-    "path": [
-      "municipalityId"
-    ],
-    "message": "Invalid input: expected string, received null"
-  },
-  {
-    "code": "unrecognized_keys",
-    "keys": [
-      "subject"
-    ],
-    "path": [],
-    "message": "Unrecognized key: \"subject\""
-  }
-]*/

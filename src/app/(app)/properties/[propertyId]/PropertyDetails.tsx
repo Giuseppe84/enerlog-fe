@@ -185,7 +185,7 @@ export function PropertyDetailPage({ property }: PropertyDetailPageProps) {
             </CardHeader>
             <CardContent className="text-sm space-y-1">
               <div className="font-medium">
-                {property.subject.firstName} {property.subject.lastName}
+                {property.owner.firstName} {property.owner.lastName}
               </div>
               {property.createdAt && (
                 <div className="text-muted-foreground text-xs">

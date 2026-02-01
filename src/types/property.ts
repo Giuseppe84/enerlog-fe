@@ -63,7 +63,7 @@ export interface Property {
 
   ownerId: string;
   notes?: string;
-  subject: Subject;
+  owner: Subject;
   createdAt?: string;
   updatedAt?: string;
 }

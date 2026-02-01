@@ -5,7 +5,7 @@ import { PropertyFormValues } from "@/validators/propertySchema";
 import { Trash2, Plus } from "lucide-react";
 import { CadastralCategorySelect } from "@/components/fields/cadastral-category-select"
 import { Label } from "@/components/ui/label";
-
+import { useEffect } from "react";
 import CitySearch from '@/components/fields/city-search';
 
 interface StepProps {
@@ -16,6 +16,7 @@ export function CadastralStep({ form }: StepProps) {
   const items = form.watch("cadastralData") || [];
   const municipalityCode = form.watch("municipalityCode");
   const municipality = form.watch("municipality");
+  const cadastralData = form.watch("cadastralData");
   const addRow = () => {
     form.setValue("cadastralData", [
       ...items,
@@ -31,6 +32,16 @@ export function CadastralStep({ form }: StepProps) {
   const cadastralError = form.formState.errors.cadastralData;
 
   console.log(cadastralError)
+  console.log(cadastralData)
+
+  useEffect(() => {
+    cadastralData.map((item) => {
+      item.municipality = municipality;
+      item.municipalityCode = municipalityCode
+    })
+
+    form.setValue("cadastralData", cadastralData);
+  }, [municipalityCode]);
 
 
   return (
@@ -46,6 +57,7 @@ export function CadastralStep({ form }: StepProps) {
 
 
           <CitySearch onChange={(postalCode) => {
+            console.log(postalCode);
             form.setValue("zip", postalCode.postalCode);
             form.setValue("province", postalCode.provinceCode || "");
             form.setValue("city", postalCode.placeName || "");
