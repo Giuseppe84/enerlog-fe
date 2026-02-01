@@ -21,7 +21,7 @@ console.log("createOrUpdateSubject called with subject:", subject, "and clientId
 const data = normalizeEmptyToNull(subject);
   // Gestione userSubjects solo per nuovo inserimento
   if (!data.id) {
-    data.userSubjects = data.userSubjects?.map(us => ({
+    data.clientSubjects = data.userSubjects?.map(us => ({
       ...us,
       isSamePerson: us.isSamePerson ?? false
     })) ?? [];

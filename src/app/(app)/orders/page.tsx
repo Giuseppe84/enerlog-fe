@@ -13,26 +13,26 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar"
 import { useEffect, useState } from 'react';
-import { fetchServices } from '@/api/services';
+import { fetchOrders } from '@/api/orders';
 import { useTranslation } from 'react-i18next';
-import type { Service } from '@/types/service'
+import type { Order , OrdersFilter} from '@/types/order'
 
 import { EmptySubject } from '@/components/emptySubjects';
 import { Button } from '@/components/ui/button';
 
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ServiceCard } from './ServiceItem';
+
 import { Edit, Trash2, Search, UserPlus } from 'lucide-react';
-import {ServiceModal} from "@/components/modals/ServiceFormModal"
-
-
+import { ServiceModal } from "@/components/modals/ServiceFormModal"
+import OrderCard from './OrderItem';
+import SearchWithFilters from "./OrderSearchFilters"
 
 
 export default function Page() {
 
   const { t } = useTranslation();
-  const [services, setServices] = useState<Service[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState('');
   const [limit] = useState(10);
@@ -40,21 +40,39 @@ export default function Page() {
   const [total, setTotal] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [editOpen, setEditOpen] = useState(false);
-
-  const loadServices = async () => {
+  const [filters, setFilters] = useState({
+    clientId: "",
+    status: "",
+    unpaidOnly: false,
+    createdAfter: "",
+    createdBefore: "",
+  });
+  const loadOrders = async () => {
     try {
-      const {data, meta} = await fetchServices();
-      console.log('Fetched services:', { data });
+
+
+      const { data, meta } = await fetchOrders(filters);
+
+      console.log('Fetched orders data:', data);
+      console.log('meta:', meta);
       // Ensure data is an array before setting it to state
-      setServices(Array.isArray(data) ? data : []);
+      setOrders(Array.isArray(data) ? data : []);
+
+      console.log('orders:', orders);
       setTotalPages(meta.totalPages);
+
       setTotal(meta.total);
     } catch (error) {
-      console.error(t('clients.error.loadingClients'), error);
+      console.error(t('clients.error.loadingOrder'), error);
       // Set empty array on error
-      setServices([]);
+      setOrders([]);
     }
   };
+  useEffect(() => {
+    setPage(1);
+    loadOrders()
+  }, [filters]);
+
 
   useEffect(() => {
     setPage(1);
@@ -63,17 +81,13 @@ export default function Page() {
 
   useEffect(() => {
 
-    loadServices();
+    loadOrders();
   }, [page, query]);
 
 
-  const filteredServices = services.filter(services =>
-    (services.name?.toLowerCase() ?? '').includes(searchTerm.toLowerCase())
+  const filteredOrders = orders.filter(orders =>
+    (orders.code?.toLowerCase() ?? '').includes(searchTerm.toLowerCase())
   );
-  const addService = (newService: Service) => {
-    services.push(newService)
-    setServices(services);
-  };
 
   return (
     <SidebarProvider>
@@ -90,7 +104,7 @@ export default function Page() {
               <BreadcrumbList>
                 <BreadcrumbItem className="hidden md:block">
                   <BreadcrumbLink href="/subjects">
-                    Servizi
+                    Ordini
                   </BreadcrumbLink>
                 </BreadcrumbItem>
               </BreadcrumbList>
@@ -100,41 +114,33 @@ export default function Page() {
 
 
 
-
-
-
-        {services.length === 0 ? <EmptySubject /> : (
+       
 
           <div className="space-y-6 p-5" >
             <div className="flex justify-between items-center">
               <h1 className="text-3xl font-bold">Servizi</h1>
               <Button onClick={() => setEditOpen(true)} >
                 <UserPlus className="mr-2 h-4 w-4" />
-                Aggiungi servizio
+                Aggiungi ordine
               </Button>
             </div>
 
             <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="Cerca soggetto"
-                value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+           
+              <SearchWithFilters filters={filters} setFilters={setFilters} searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
             </div>
 
-            <Card>
+             {orders.length === 0 ? <EmptySubject /> : (<Card>
               <CardHeader>
                 <CardTitle>{t('clients.listTitle')}</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex flex-wrap gap-4">
+                <div className="flex flex-col  gap-4">
 
-                  {filteredServices.map(service => (
+                  {filteredOrders.map(order => (
 
 
-                    <ServiceCard service={service} key={service.id} />
+                    <OrderCard order={order} key={order.id} />
 
                   ))}
 
@@ -142,7 +148,7 @@ export default function Page() {
                 </div>
                 <div className="flex justify-between items-center mt-4">
                   <div className="text-sm text-muted-foreground">
-                    Totale: {total} servizi
+                    Totale: {total} ordini
                   </div>
                   {searchTerm && (
                     <p className="text-sm text-muted-foreground">
@@ -174,11 +180,13 @@ export default function Page() {
                   </div>
                 </div>
               </CardContent>
-            </Card>
+            </Card>     )}
 
           </div>
-        )}
-        <ServiceModal isOpen={editOpen} setIsOpen={setEditOpen} service={{}} setService={(service) => addService(service)} />
+   
+
+
+
       </SidebarInset>
     </SidebarProvider>
   )
