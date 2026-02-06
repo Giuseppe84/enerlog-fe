@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 
+
 import {
   Tooltip,
   TooltipContent,
@@ -18,7 +19,7 @@ import {
 import dayjs from "dayjs";
 import { Property } from "@/types/property";
 import { EnergyClassBadge } from "@/components/energy-class-badge";
-import { getBuildingType, getUsageDestination, getEnergyUsageType, getCadastralCategoriese } from "@/data/properties"
+import { getBuildingType, getUsageDestination, getEnergyUsageType, getCadastralCategory } from "@/data/properties"
 import { useEffect, useState } from "react";
 import  EnergyClassScale from "@/components/fields/energy-class-scale"
 interface PropertyDetailPageProps {
@@ -153,14 +154,14 @@ export function PropertyDetailPage({ property }: PropertyDetailPageProps) {
                   <div className="font-medium">
                     {item.municipality} ({item.municipalityCode})
                   </div>
-                  <div>  {getCadastralCategoriese(item.category)?.name}</div>
+                  <div>  {getCadastralCategory(item.category)?.name}</div>
                   <div className="flex flex-wrap gap-2">
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Badge variant="outline">Cat. {getCadastralCategoriese(item.category)?.code}</Badge>
+                        <Badge variant="outline">Cat. {getCadastralCategory(item.category)?.code}</Badge>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>{getCadastralCategoriese(item.category)?.name}</p>
+                        <p>{getCadastralCategory(item.category)?.name}</p>
                       </TooltipContent>
                     </Tooltip>
 

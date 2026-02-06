@@ -25,7 +25,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar"
 import { fetchClientById, fetchAvatar } from '@/api/clients';
-import { fetchWorks } from '@/api/works';
+import { fetchWorks } from '@/api/practices';
 import { fetchPayments } from '@/api/payments';
 import { useParams, useRouter } from "next/navigation";
 import { User, FileText, Users, DollarSign, Calendar, IdCard, TrendingUp, House, Tag } from 'lucide-react';

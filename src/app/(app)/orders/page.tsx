@@ -41,6 +41,7 @@ export default function Page() {
   const [searchTerm, setSearchTerm] = useState('');
   const [editOpen, setEditOpen] = useState(false);
   const [filters, setFilters] = useState({
+    query: "",
     clientId: "",
     status: "",
     unpaidOnly: false,

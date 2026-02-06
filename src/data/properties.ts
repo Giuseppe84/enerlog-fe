@@ -502,6 +502,6 @@ export const cadastralCategories: CadastralCategory[] = [
 const cadastralCategoriesMap = Object.fromEntries(
   cadastralCategories.map(ud => [ud.code, ud])
 ) as Record<string, CadastralCategory>;
-export const getCadastralCategoriese = (code?: string) =>
+export const getCadastralCategory = (code?: string) =>
   code ? cadastralCategoriesMap[code] : undefined;
 

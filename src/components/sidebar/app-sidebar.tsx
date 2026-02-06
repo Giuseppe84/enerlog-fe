@@ -14,7 +14,8 @@ import {
   FileUser,
   House,
   HandPlatter,
-  Receipt
+  Receipt,
+  ListCheck
 } from "lucide-react"
 import { NavMain } from "@/components/sidebar/nav-main"
 import { NavEntities } from "@/components/sidebar/nav-entities"
@@ -170,6 +171,11 @@ const data = {
       name: "Ordini",
       url: "/orders",
       icon: Receipt,
+    },
+               {
+      name: "Pratiche",
+      url: "/practices",
+      icon: ListCheck,
     },
   ]
 }

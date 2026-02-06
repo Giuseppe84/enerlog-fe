@@ -88,3 +88,14 @@ export type ClientsResponse = {
 
 
 
+
+export type CardClient = {
+  type: string;
+  id: string;
+  firstName?: string | null;
+  lastName?: string | null;
+  companyName?: string | null;
+  legalForm?: string | null;
+  taxCode?: string | null;
+  vatNumber?: string | null;
+};
