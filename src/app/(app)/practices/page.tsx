@@ -13,17 +13,7 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
-import {
-    Avatar,
-    AvatarFallback,
-    AvatarImage,
-} from "@/components/ui/avatar"
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipTrigger,
-    TooltipProvider,
-} from "@/components/ui/tooltip"
+
 import {
     Table,
     TableBody,
@@ -32,15 +22,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge"
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+
 import { Separator } from "@/components/ui/separator"
 import {
     SidebarInset,
@@ -49,18 +31,17 @@ import {
 } from "@/components/ui/sidebar"
 import { useEffect, useState } from 'react';
 import { fetchPractices } from '@/api/practices';
-import { fetchAvatar } from "@/api/clients"
+
 import { useTranslation } from 'react-i18next';
 
 import type { Client } from '@/types/client'
 import { PracticesRow } from './PracticeItem';
-import { MoreHorizontal, FileText, Building2, MapPin } from "lucide-react"
 
 import { EmptySubject } from '@/components/emptySubjects';
 import { Button } from '@/components/ui/button';
-import { Practice, PracticesData } from "@/types/practices";
+import { Practice } from "@/types/practices";
 
-import { Edit, Trash2, Search, UserPlus } from 'lucide-react';
+import { UserPlus } from 'lucide-react';
 import SearchWithPracticeFilters from "./PracticesSearchFilters"
 
 //import SearchWithFilters from "./PracticeSearchFilters"
@@ -89,8 +70,7 @@ export default function Page() {
     const [total, setTotal] = useState(0);
     const [searchTerm, setSearchTerm] = useState('');
     const [editOpen, setEditOpen] = useState(false);
-    const [client, setClient] = useState<Client>({})
-    const [clientAvatar, setClientAvatar] = useState<Record<string, string>>({})
+ 
     const [filters, setFilters] = useState({
         query: "",
         clientId: "",
@@ -110,25 +90,7 @@ export default function Page() {
         valueFromDate: "",
         valueToDate: "",
     });
-    const formatDate = (dateString: string | null) => {
-        if (!dateString || dateString === "1970-01-01T00:00:00.000Z") return "-"
-        return new Date(dateString).toLocaleDateString("it-IT")
-    }
 
-    const formatCurrency = (amount: string) => {
-        return new Intl.NumberFormat("it-IT", {
-            style: "currency",
-            currency: "EUR",
-        }).format(parseFloat(amount))
-    }
-
-    const getClientName = (client: Practice["subject"]) => {
-        if (client.companyName) return client.companyName
-        if (client.firstName && client.lastName) {
-            return `${client.firstName} ${client.lastName}`
-        }
-        return "-"
-    }
 
     const loadPractices = async () => {
         try {

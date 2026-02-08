@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export type PropertyFormValues = z.infer<typeof propertySchema>;
 export const locationSchema = z.object({
+    id:z.uuid().optional().nullable(),
     municipalityId: z.string().length(6).optional(),
     address: z.string().min(3, "Indirizzo obbligatorio"),
     city: z.string().min(2, "Città obbligatoria"),
@@ -50,7 +51,7 @@ export const buildingSchema = z.object({
     isHistoricalBuilding: z.boolean().optional().default(false),
     isHabitable: z.boolean().optional().default(true),
     hasAgibility: z.boolean().optional().default(false),
-      heatingType: z.string().optional(),
+    heatingType: z.string().optional(),
     coolingType: z.string().optional(),
 
 })

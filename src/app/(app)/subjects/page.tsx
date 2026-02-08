@@ -11,7 +11,16 @@ import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
-} from "@/components/ui/sidebar"
+
+} from "@/components/ui/sidebar";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { useEffect, useState } from 'react';
 import { fetchSubjects } from '@/api/subjects';
 import { useTranslation } from 'react-i18next';
@@ -21,7 +30,7 @@ import { EmptySubject } from '@/components/emptySubjects';
 import { Button } from '@/components/ui/button';
 
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, } from '@/components/ui/card';
 
 import { Edit, Trash2, Search, UserPlus } from 'lucide-react';
 
@@ -67,14 +76,15 @@ export default function Page() {
     loadSubjects();
   }, [page, query]);
 
-
-  const filteredSubjects = subjects.filter(subject =>
-    (subject.firstName?.toLowerCase() ?? '').includes(searchTerm.toLowerCase()) ||
-    (subject.lastName?.toLowerCase() ?? '').includes(searchTerm.toLowerCase()) ||
-    (subject.companyName?.toLowerCase() ?? '').includes(searchTerm.toLowerCase()) ||
-    (subject.taxCode?.toLowerCase() ?? '').includes(searchTerm.toLowerCase())
-  );
-
+const filteredSubjects = Array.isArray(subjects)
+  ? subjects.filter(subject =>
+      (subject.firstName?.toLowerCase() ?? '').includes(searchTerm.toLowerCase()) ||
+      (subject.lastName?.toLowerCase() ?? '').includes(searchTerm.toLowerCase()) ||
+      (subject.companyName?.toLowerCase() ?? '').includes(searchTerm.toLowerCase()) ||
+      (subject.taxCode?.toLowerCase() ?? '').includes(searchTerm.toLowerCase())
+    )
+  : [];
+ 
 
   return (
     <SidebarProvider>
@@ -130,13 +140,49 @@ export default function Page() {
                 <CardTitle>{t('clients.listTitle')}</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex flex-col gap-4">
-                  {filteredSubjects.map(subject => (
+               <div className="rounded-md border">
 
 
-                    <SubjectItem subject={subject} key={subject.id} />
+                  {filteredSubjects.length === 0 ? <EmptySubject /> : (
 
-                  ))}
+
+
+
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+
+                          <TableHead>Tipo</TableHead>
+
+                          <TableHead>Soggetto</TableHead>
+                          <TableHead>P.IVA / Codice fiscale</TableHead>
+                          <TableHead>Clienti associati</TableHead>
+
+                          <TableHead>Data Creazione</TableHead>
+                          <TableHead className="text-right">Azioni</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredSubjects.length === 0 ? (
+                          <TableRow>
+                            <TableCell colSpan={9} className="text-center text-muted-foreground">
+                              Nessuna pratica trovata
+                            </TableCell>
+                          </TableRow>
+                        ) : (
+                          filteredSubjects.map((subject) => (
+                            <SubjectItem subject={subject} key={subject.id} />
+                          ))
+                        )}
+                      </TableBody>
+                    </Table>
+
+
+
+
+
+                  )}
+
                 </div>
                 <div className="flex justify-between items-center mt-4">
                   <div className="text-sm text-muted-foreground">

@@ -2,11 +2,13 @@ import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { fetchSubjects } from "@/api/subjects";
+import { fetchSubjects, fetchSubjectsByClientId } from "@/api/subjects";
 import { Subject } from "@/types/subject";
+import { Client } from "@/types/client";
 
 interface SubjectSelectorProps {
   onSelectSubject: (subject: Subject) => void;
+  client?: Client;
   skipCloseOnSelect?: boolean;
 }
 
@@ -29,12 +31,16 @@ function highlight(text: string, search: string) {
 
 export const SubjectSelector: React.FC<SubjectSelectorProps> = ({
   onSelectSubject,
+  client
 }) => {
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    fetchSubjects().then(res => setSubjects(res.data));
+    if (client)
+      fetchSubjectsByClientId(client.id).then(res => setSubjects(res.data));
+    else
+      fetchSubjects().then(res => setSubjects(res.data));
   }, []);
 
   const filtered = subjects.filter(s => {
@@ -58,6 +64,7 @@ export const SubjectSelector: React.FC<SubjectSelectorProps> = ({
       />
 
       <ScrollArea className="h-[320px] border rounded-md">
+        {client && <p>Soggetti associati al cliente {client.companyName} {client.firstName} {client.lastName}</p>}
         <div className="p-2 space-y-2">
           {filtered.map(subject => (
             <div

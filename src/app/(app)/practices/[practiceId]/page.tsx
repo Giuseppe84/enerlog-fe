@@ -32,7 +32,8 @@ import { Edit, Trash2, Search, UserPlus } from 'lucide-react';
 
 import { useParams, useRouter } from "next/navigation";
 import PracticeDetailPage from './PracticeDetail';
-
+import { CTPracticeDialog } from '@/components/modals/PracticeFormModal'
+import { generate } from '@/api/ai'
 //import SearchWithFilters from "./PracticeSearchFilters"
 
 
@@ -68,13 +69,17 @@ export default function Page() {
       try {
         console.log('Loading data for serviceId:', practiceId);
         //if (!subjectId) return;
-
+        const prompt = 'ciao dal frontent';
         const [practiceData] = await Promise.all([
+
           fetchPracticeById(practiceId),
+
           //fetchPropertiesBySubject(serviceId),
           // fetchWorks(),
         ]);
         console.log('Practice data:', practiceData);
+
+
 
         setPractice(practiceData);
         //setProperties(propertiesData || []);
@@ -86,8 +91,14 @@ export default function Page() {
         setLoading(false);
       }
     };
+
     loadData();
+
+
+
   }, [practiceId]);
+
+
 
 
   if (loading) {
@@ -163,7 +174,7 @@ export default function Page() {
 
 
           <PracticeDetailPage practice={practice} />
-
+          <CTPracticeDialog isOpen={editOpen} setIsOpen={setEditOpen} initialValues={practice} setPractice={setPractice} />
         </div>
       </SidebarInset>
     </SidebarProvider>

@@ -1,7 +1,14 @@
 import { useEffect, useState } from "react"
 
 import dayjs from "dayjs"
-
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import {
   Card,
   CardContent,
@@ -21,8 +28,21 @@ import { Badge } from "@/components/ui/badge"
 import type { Subject } from "@/types/subject"
 import { fetchAvatar } from "@/api/clients"
 import { useRouter } from "next/navigation";
-import { User, Building, Sparkles } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { MoreHorizontal, FileText, Building2, MapPin } from "lucide-react"
 
+
+
+
+import { User, Building, Sparkles } from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 /* -------------------------------------------------------
    Cache avatar (globale al file)
@@ -47,6 +67,7 @@ const SubjectItem = ({ subject }: { subject: Subject }) => {
   const [clientAvatars, setClientAvatars] = useState<Record<string, string>>({})
   const router = useRouter();
   const subjectName = subject.companyName ? subject.companyName : `${subject.firstName || ''} ${subject.lastName || ''}`.trim();
+   const subjectCode = subject.companyName ?  `P.IVA ${subject.vatNumber || ''} / CF ${subject.legalTaxCode || ''}`.trim() : subject.taxCode;
   const isRecent = dayjs().diff(dayjs(subject.createdAt), "day") <= 7
   useEffect(() => {
     const loadClientAvatars = async () => {
@@ -72,66 +93,38 @@ const SubjectItem = ({ subject }: { subject: Subject }) => {
   }, [subject.clients])
 
   return (
-    <Card
-      onClick={() => router.push("/subjects/" + subject.id)}
-      className={`w-full cursor-pointer transition border
+    <TableRow onClick={() => router.push("/subjects/" + subject.id)}
+      className={`cursor-pointer transition border
     hover:shadow-lg hover:border-primary/40
     ${isRecent ? "border-primary/50 bg-primary/5" : ""}
-  `}
-    >
-      <CardContent className="p-4 grid grid-cols-[1fr_auto_auto] items-center gap-6">
-
-        {/* LEFT — Identità */}
-        <div className="flex items-start gap-3 min-w-0">
-
-          {/* Icona tipo */}
-          <div
-            className={`h-10 w-10 rounded-lg flex items-center justify-center
+  `} >
+      <TableCell className="font-medium">
+        <div
+          className={`h-10 w-10 rounded-lg flex items-center justify-center
           ${subject.type === "PHYSICAL"
-                ? "bg-blue-500/10 text-blue-600"
-                : "bg-violet-500/10 text-violet-600"
-              }
+              ? "bg-blue-500/10 text-blue-600"
+              : "bg-violet-500/10 text-violet-600"
+            }
         `}
-          >
-            {subject.type === "PHYSICAL" ? (
-              <User className="h-5 w-5" />
-            ) : (
-              <Building className="h-5 w-5" />
-            )}
-          </div>
-
-          {/* Testi */}
-          <div className="flex flex-col min-w-0 gap-0.5">
-            <div className="flex items-center gap-2 flex-wrap">
-              <div className="font-semibold truncate">
-                {subjectName}
-              </div>
-
-              <Badge variant="secondary" className="h-5 px-2 text-[10px]">
-                {subject.type === "PHYSICAL"
-                  ? "PERSONA FISICA"
-                  : "PERSONA GIURIDICA"}
-              </Badge>
-
-              {isRecent && (
-                <Badge
-                  variant="outline"
-                  className="h-5 px-2 text-[10px] gap-1 text-primary border-primary/40"
-                >
-                  <Sparkles className="h-3 w-3" />
-                  Nuovo
-                </Badge>
-              )}
-            </div>
-
-            {subject.taxCode && (
-              <div className="text-xs text-muted-foreground truncate">
-                CF: <span className="font-mono">{subject.taxCode}</span>
-              </div>
-            )}
-          </div>
+        >
+          {subject.type === "PHYSICAL" ? (
+            <User className="h-5 w-5" />
+          ) : (
+            <Building className="h-5 w-5" />
+          )}
         </div>
-
+            </TableCell>
+      <TableCell>
+        <div className="font-semibold truncate">
+          {subjectName}
+        </div>
+      </TableCell>
+       <TableCell>
+        <div className="text-sm text-muted-foreground">
+          {subjectCode}
+        </div>
+      </TableCell>
+      <TableCell>
         {/* CENTER — Avatar clienti */}
         {subject.clients?.length > 0 && (
           <TooltipProvider>
@@ -169,17 +162,36 @@ const SubjectItem = ({ subject }: { subject: Subject }) => {
             </div>
           </TooltipProvider>
         )}
+      </TableCell>
 
-        {/* RIGHT — Data */}
-        <div className="text-right text-xs text-muted-foreground whitespace-nowrap">
-          <div>Inserito il</div>
-          <div className="font-medium text-foreground">
-            {dayjs(subject.createdAt).format("DD/MM/YYYY")}
-          </div>
-        </div>
-
-      </CardContent>
-    </Card>
+      <TableCell className="text-sm text-muted-foreground">
+        {dayjs(subject.createdAt).format("DD/MM/YYYY")}
+      </TableCell>
+      <TableCell className="text-right">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Apri menu</span>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Azioni</DropdownMenuLabel>
+            <DropdownMenuItem
+              onClick={() => navigator.clipboard.writeText(practice.id)}
+            >
+              Copia ID
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>Visualizza dettagli</DropdownMenuItem>
+            <DropdownMenuItem>Modifica</DropdownMenuItem>
+            <DropdownMenuItem className="text-red-600">
+              Elimina
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </TableCell>
+    </TableRow>
   )
 }
 

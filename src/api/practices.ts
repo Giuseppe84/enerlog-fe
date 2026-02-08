@@ -1,5 +1,5 @@
 import api from './axiosInstance';
-import { PracticesFilter ,PracticesData, Practice} from '@/types/practices';
+import { PracticesFilter ,PracticesData, Practice, CTPractice} from '@/types/practices';
 
 
 export const fetchPractices = async (filters: PracticesFilter):Promise<PracticesData> => {
@@ -9,13 +9,18 @@ export const fetchPractices = async (filters: PracticesFilter):Promise<Practices
   return response.data;
 };
 
-export const createOrUpdatePractices  = async (practice: Practice) => {
+export const createOrUpdatePractice  = async (practice: Practice) => {
   const response = practice.id
     ? await api.put(`/practices/${practice.id}`, practice)
     : await api.post('/practices', practice);
   return response.data;
 };
-
+export const createOrUpdateCTPractice  = async (practice: CTPractice) => {
+  const response = practice.id
+    ? await api.put(`/practices/${practice.id}`, practice)
+    : await api.post('/practices', practice);
+  return response.data;
+};
 export const deletePractices  = async (id: string) => {
   const response = await api.delete(`/practices/${id}`);
   return response.data;

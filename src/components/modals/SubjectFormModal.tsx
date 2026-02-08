@@ -76,6 +76,7 @@ export function SubjectModal({ subject, isOpen, setIsOpen, setSubject }: Subject
   };
 
   const handleError = (message?: string) => {
+    console.log(message)
     toast.error(t('clients.error.error'), {
       description: message || t('clients.error.clientError'),
     });
@@ -265,7 +266,7 @@ export function SubjectModal({ subject, isOpen, setIsOpen, setSubject }: Subject
 
                     <CitySearch onChange={(postalCode) => {
                       form.setValue("postalCode", postalCode.postalCode);
-                      form.setValue("province", postalCode.provinceName || "");
+                      form.setValue("province", postalCode.provinceCode || "");
                       form.setValue("city", postalCode.placeName || "");
                       form.setValue("country", "IT");
                     }} value={form.getValues("city") ?? ""} />
@@ -280,13 +281,7 @@ export function SubjectModal({ subject, isOpen, setIsOpen, setSubject }: Subject
                     {fieldState.error && <p className="text-sm text-destructive">{fieldState.error.message}</p>}
                   </div>
                 )} />
-                <Controller name="city" control={form.control} render={({ field, fieldState }) => (
-                  <div>
-                    <Label>Città</Label>
-                    <Input {...field} value={field.value ?? ""} className={fieldState.error ? "border-destructive" : ""} />
-                    {fieldState.error && <p className="text-sm text-destructive">{fieldState.error.message}</p>}
-                  </div>
-                )} />
+             
                 <Controller name="province" control={form.control} render={({ field, fieldState }) => (
                   <div>
                     <Label>Provincia</Label>

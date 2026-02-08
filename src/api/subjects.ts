@@ -7,14 +7,27 @@ import { normalizeEmptyToNull } from '@/utils/normalize';
 export const fetchSubjects = async (
   page = 1,
   limit = 10,
-  query?: string
+  query?: string,
+  clientId?: string
 ): Promise<SubjectsResponse> => {
   const res = await api.get('/subjects', {
-    params: { page, limit, q: query },
+    params: { page, limit, q: query, clientId },
   });
 
   return res.data;
 };
+
+export const fetchSubjectsByClientId = async (
+  clientId: string
+): Promise<SubjectsResponse> => {
+  const res = await api.get('/subjects', {
+    params: { clientId },
+  });
+
+  return res.data;
+};
+
+
 export const createOrUpdateSubject = async (subject: Subject) => {
 console.log("createOrUpdateSubject called with subject:", subject, "and clientId:", subject.clientId);
   

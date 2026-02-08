@@ -6,6 +6,14 @@ import {
   BreadcrumbLink,
   BreadcrumbList,
 } from "@/components/ui/breadcrumb"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Separator } from "@/components/ui/separator"
 import {
   SidebarInset,
@@ -137,13 +145,35 @@ export default function Page() {
             </CardHeader>
             <CardContent>
               <div className="flex flex-col  gap-4">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Ordine</TableHead>
+                      <TableHead>Cliente</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Importo</TableHead>
+                      <TableHead>Da saldare</TableHead>
+                    
 
-                {filteredOrders.map(order => (
+                      <TableHead>Data Creazione</TableHead>
+                      <TableHead className="text-right">Azioni</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredOrders.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={9} className="text-center text-muted-foreground">
+                          Nessuna pratica trovata
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      filteredOrders.map((order) => (
+                        <OrderCard order={order} key={order.id} />
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
 
-
-                  <OrderCard order={order} key={order.id} />
-
-                ))}
 
 
               </div>

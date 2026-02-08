@@ -1,4 +1,6 @@
 import type {Property} from "./property"
+import type {Service} from './service'
+
 
 export interface Practice {
     id: string
@@ -32,6 +34,7 @@ export interface Practice {
         lastName: string | null
         companyName: string | null
     }
+    service: Service,
     property: Property,
     order: {
         totalAmount: string
@@ -72,3 +75,23 @@ export type PracticesFilter = {
 };
 
 
+export type CTPractice = {
+  id: string;
+  practiceCode: string;
+  interventionTypeId: string;
+  createdAt: Date;
+  updatedAt: Date;
+  approvedAt?: Date | null;
+  submittedAt?: Date | null;
+  valueDate?: Date | null;
+  iban?: string | null;
+  incentiveAmount?: number | null;
+  amount?: number | null;
+  mandatarySubjectId?: string | null;
+  mandateForCollection: boolean;
+  CTstatus: 'DRAFT'|'READY_TO_SUBMIT'|'SUBMITTED'|'UNDER_REVIEW'|'APPROVED'|'REJECTED'|'PAID';
+  practice: Practice;
+  practiceId: string;
+};
+
+export type CTPracticeInput = Practice & CTPractice;

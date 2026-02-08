@@ -67,66 +67,66 @@ export function PropertyFormModal({
     surfaces: 4,
     energy: 5,
   };
-const EMPTY_PROPERTY_FORM: PropertyFormValues = {
-  address: "",
-  city: "",
-  province: "",
-  zip: "",
-  country: "IT",
+  const EMPTY_PROPERTY_FORM: PropertyFormValues = {
+    address: "",
+    city: "",
+    province: "",
+    zip: "",
+    country: "IT",
 
-  municipalityId: undefined,
-  municipalityCode: "",
-  municipality: "",
+    municipalityId: undefined,
+    municipalityCode: "",
+    municipality: "",
 
-  longitude: 0,
-  latitude: 0,
+    longitude: 0,
+    latitude: 0,
 
-  yearBuilt: 1990,
-  renovationYear: 1990,
-  isHistoricalBuilding: false,
-  isHabitable: true,
-  hasAgibility: false,
-  hasElevator: false,
-  hasGarage: false,
-  hasParking: false,
-  hasGarden: false,
-  hasBalcony: false,
-  hasTerrace: false,
+    yearBuilt: 1990,
+    renovationYear: 1990,
+    isHistoricalBuilding: false,
+    isHabitable: true,
+    hasAgibility: false,
+    hasElevator: false,
+    hasGarage: false,
+    hasParking: false,
+    hasGarden: false,
+    hasBalcony: false,
+    hasTerrace: false,
 
-  isNzeb: false,
+    isNzeb: false,
 
-  propertyType: "RESIDENTIAL",
-  conditionStatus: "GOOD",
+    propertyType: "RESIDENTIAL",
+    conditionStatus: "GOOD",
 
-  sup: 100,
-  supCommercial: 100,
-  supLand: 100,
-  volume: 300,
+    sup: 100,
+    supCommercial: 100,
+    supLand: 100,
+    volume: 300,
 
-  energyClass: "G",
-  EPglren: 400,
-  EPglnren: 400,
-  co2: 400,
-  energyConsumption: 400,
+    energyClass: "G",
+    EPglren: 400,
+    EPglnren: 400,
+    co2: 400,
+    energyConsumption: 400,
 
-  seismicClass: undefined,
-  heatingType: undefined,
-  coolingType: undefined,
+    seismicClass: undefined,
+    heatingType: undefined,
+    coolingType: undefined,
 
-  cadastralData: [
-    {
-      municipality: "",
-      municipalityCode: "",
-      category: "",
-      sheet: "",
-      parcel: "",
-      subaltern: "",
-    },
-  ],
+    cadastralData: [
+      {
+        municipality: "",
+        municipalityCode: "",
+        category: "",
+        sheet: "",
+        parcel: "",
+        subaltern: "",
+      },
+    ],
 
-  ownerId: undefined,
-  notes: "",
-};
+    ownerId: undefined,
+    notes: "",
+  };
   function stepHasErrors(
     stepIndex: number,
     errors: FieldErrors<PropertyFormValues>
@@ -151,6 +151,10 @@ const EMPTY_PROPERTY_FORM: PropertyFormValues = {
   const city = watch("city");
   const buildingType = watch("buildingType");
   const buildingName = watch("name");
+
+ useEffect(() => {
+  console.log(property);
+    }, [property]);
 
   useEffect(() => {
     const generatedName = generateBuildingName({
@@ -194,9 +198,9 @@ const EMPTY_PROPERTY_FORM: PropertyFormValues = {
 
     try {
 
-      console.log("ddds");
 
-      const response = await createOrUpdateProperty({ ...values as Property, id: property?.id });
+
+      const response = await createOrUpdateProperty(values as Property);
       console.log("API response:", response);
       setProperty(response.property);
       handleSuccess(response.message);

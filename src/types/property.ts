@@ -10,21 +10,22 @@ export interface CadastralData {
 }
 
 export interface Property {
-  id: string; // UUID della property
+  id?: string; // UUID della property
   name: string;
   address: string;
   city: string;
   province?: string;
   zip?: string;
   country?: string;
-
+  municipalityCode?: string,
+  municipality?: string,
   latitude?: number | null;
   longitude?: number | null;
- 
+
   propertyType: 'RESIDENTIAL' | 'COMMERCIAL' | 'INDUSTRIAL' | string;
-  buildingType: 'APARTMENT' | 'DETACHED_HOUSE' | 'SEMI_DETACHED' | 'TERRACED'|'CONDOMINIUM'|'FARMHOUSE'|string;
-  usageDestination: 'MAIN_RESIDENCE'| 'SECOND_HOME'| 'RENTAL'|'OFFICE'|'COMMERCIAL'|'WAREHOUSE'| string;
-  conditionStatus:'NEW'|'GOOD'|'RENOVATED'|'TO_RENOVATE'|'POOR'|string,
+  buildingType: 'APARTMENT' | 'DETACHED_HOUSE' | 'SEMI_DETACHED' | 'TERRACED' | 'CONDOMINIUM' | 'FARMHOUSE' | string;
+  usageDestination: 'MAIN_RESIDENCE' | 'SECOND_HOME' | 'RENTAL' | 'OFFICE' | 'COMMERCIAL' | 'WAREHOUSE' | string;
+  conditionStatus: 'NEW' | 'GOOD' | 'RENOVATED' | 'TO_RENOVATE' | 'POOR' | string,
   yearBuilt?: number;
   renovationYear?: number;
   floors?: number;
@@ -58,7 +59,7 @@ export interface Property {
   isHistoricalBuilding?: boolean;
   isHabitable?: boolean;
   hasAgibility?: boolean;
-  energyUsageType:string;
+  energyUsageType: string;
   cadastralData: CadastralData[];
 
   ownerId: string;

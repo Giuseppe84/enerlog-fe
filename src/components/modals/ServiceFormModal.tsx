@@ -7,21 +7,11 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { Button } from "@/components/ui/button";
 import { useTranslation } from 'react-i18next';
 import { Checkbox } from "@/components/ui/checkbox";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { UpdateServiceInput, CreateServiceInput, createServiceSchema } from "@/validators/serviceSchema";
-import { Service } from "@/types/service"
+import { UpdateServiceInput, createServiceSchema } from "@/validators/serviceSchema";
 import { createOrUpdateService } from "@/api/services";
 import { toast } from "sonner";
 import { useForm, Controller, SubmitHandler } from 'react-hook-form';
@@ -30,15 +20,6 @@ import { z } from 'zod';
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Calendar } from "lucide-react";
-
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-
-import { format } from "date-fns";
-
-import { Calendar as DatePicker } from "@/components/ui/calendar"; // ShadCN Calendar
-import CodiceFiscale from "codice-fiscale-js";
-
 import { useAuth } from "@/context/AuthProvider";
 
 
