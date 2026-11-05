@@ -5,8 +5,6 @@ import {
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { Separator } from "@/components/ui/separator"
 import {
@@ -17,27 +15,20 @@ import {
 
 import { useEffect, useState } from 'react';
 
-
-
 import { Button } from '@/components/ui/button';
-
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Edit, Trash2, UserPlus, Search } from 'lucide-react';
+import { Search, UserPlus } from 'lucide-react';
 
 import { fetchClients } from '@/api/clients';
-import { fetchSubjects } from '@/api/subjects';
 
 import { ClientFormModal } from '@/components/modals/ClientFormModal';
 import { DeleteClientModal } from '@/components/modals/DeleteClientModal';
 
 import type { Client } from '@/types/client'
 import { useTranslation } from 'react-i18next';
-import { useRouter } from "next/navigation";
-
-
-
+import { TableHeader, TableRow, TableHead, TableBody, TableCell, Table } from "@/components/ui/table"
+import ClientItem from "./ClientItem"
 
 export default function Page() {
 
@@ -49,49 +40,26 @@ export default function Page() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [clientToDelete, setClientToDelete] = useState<Client | null>(null);
   const [page, setPage] = useState(1);
-  const [limit] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
-  const [availableSubjects, setAvailableSubjects] = useState<{ id: string; firstName: string; lastName: string; }[]>([]);
-  const [selectedSubjectIds, setSelectedSubjectIds] = useState<string[]>([]);
-  const [loadingSubjects, setLoadingSubjects] = useState(false);
-  const router = useRouter();
-
 
   useEffect(() => {
     const loadClients = async () => {
       try {
         const res = await fetchClients();
         console.log('Fetched clients:', { clients });
-        // Ensure data is an array before setting it to state
         setClients(Array.isArray(res.data) ? res.data : []);
         setTotalPages(res.meta.totalPages);
         setTotal(res.meta.total);
       } catch (error) {
         console.error(t('clients.error.loadingClients'), error);
-        // Set empty array on error
         setClients([]);
       }
     };
     loadClients();
   }, [t]);
 
-  useEffect(() => {
-    if (open) {
-      setLoadingSubjects(true);
-      fetchSubjects()
-        .then(res => {
-          setAvailableSubjects(res.data);
-
-
-        })
-        .finally(() => setLoadingSubjects(false));
-    }
-  }, [open, newClient]);
-
   const handleOpen = () => setOpen(true);
-
-
 
   const handleDeleteCancel = () => {
     setClientToDelete(null);
@@ -109,6 +77,7 @@ export default function Page() {
     (client.firstName?.toLowerCase() ?? '').includes(searchTerm.toLowerCase()) ||
     (client.lastName?.toLowerCase() ?? '').includes(searchTerm.toLowerCase())
   );
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -132,9 +101,7 @@ export default function Page() {
           </div>
         </header>
 
-
         <div className="space-y-6 p-5">
-
           {/* Header */}
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -158,53 +125,36 @@ export default function Page() {
             />
           </div>
 
-
           <Card>
             <CardHeader>
               <CardTitle>{t('clients.listTitle')}</CardTitle>
             </CardHeader>
             <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Tipo</TableHead>
+                    <TableHead>Soggetto</TableHead>
+                    <TableHead>P.IVA / Codice fiscale</TableHead>
+                    <TableHead>Data Creazione</TableHead>
+                    <TableHead className="text-right">Azioni</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredClients.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center text-muted-foreground">
+                        Nessun cliente trovato
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    filteredClients.map((client) => (
+                      <ClientItem client={client} key={client.id} />
+                    ))
+                  )}
+                </TableBody>
+              </Table>
 
-              <div className="grid gap-3 grid-cols-[repeat(auto-fill,minmax(220px,1fr))]">
-                {filteredClients.map(client => (
-
-
-                  <Card key={client.id} className='p-6 m-1 bg-gradient-to-t  from-blue-50 to-blue-100 border-blue-200' onClick={() => router.push("/clients/" + client.id)}>
-                    <div className="flex items-center gap-3">
-                      <Avatar >
-                        <AvatarImage src={client.avatar} />
-                        <AvatarFallback>
-                          {client.firstName?.[0]}
-                        </AvatarFallback>
-                      </Avatar>
-                      {client.type === 'PHYSICAL' && <div className="truncate">
-                        <div className="text-lg font-semibold truncate">
-                          {client.firstName} {client.lastName}
-                        </div>
-                        <div className="text-xs font-extralight truncate">
-                          {client.taxCode}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          {client.type}
-                        </div>
-                      </div>}
-
-                      {client.type === 'LEGAL' && <div className="truncate">
-                        <div className="text-lg font-semibold truncate">
-                          {client.companyName} {client.legalForm}
-                        </div>
-                        <div className="text-xs font-extralight truncate">
-                          {client.vatNumber} / {client.taxCode}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          {client.type}
-                        </div>
-                      </div>}
-
-                    </div>
-                  </Card>
-                ))}
-              </div>
               <div className="flex justify-between items-center mt-4">
                 <div className="text-sm text-muted-foreground">
                   Totale: {total} elementi
@@ -237,7 +187,6 @@ export default function Page() {
             </CardContent>
           </Card>
 
-
           <ClientFormModal isOpen={open} client={newClient} setIsOpen={setOpen} setClient={setNewClient} />
           <DeleteClientModal
             deleteDialogOpen={deleteDialogOpen}
@@ -246,8 +195,7 @@ export default function Page() {
             handleDeleteCancel={handleDeleteCancel}
             handleDeleteConfirm={handleDeleteConfirm}
           />
-
-        </div >
+        </div>
       </SidebarInset>
     </SidebarProvider>
   )

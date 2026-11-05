@@ -2,6 +2,11 @@ import type { NextConfig } from "next";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    async rewrites() {
+    return [
+      { source: "/api/:path*", destination: "http://10.0.1.174:4000/api/:path*" },
+    ];
+  },
   images: {
     domains: ["i.pravatar.cc"], // aggiungi qui tutti i domini esterni che usi
       remotePatterns: [
@@ -14,6 +19,8 @@ const nextConfig = {
     ],
   },
 };
+
+
 
 
 
