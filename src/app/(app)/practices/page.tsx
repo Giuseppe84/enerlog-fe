@@ -166,13 +166,7 @@ export default function Page() {
 
 
                 <div className="space-y-6 p-5" >
-                    <div className="flex justify-between items-center">
-                        <h1 className="text-3xl font-bold">Servizi</h1>
-                        <Button onClick={() => setEditOpen(true)} >
-                            <UserPlus className="mr-2 h-4 w-4" />
-                            Aggiungi pratica
-                        </Button>
-                    </div>
+                   
 
 
                     <div className="relative">

@@ -90,7 +90,12 @@ export function ServiceModal({ service, isOpen, setIsOpen, setService }: Service
 
       console.log("Submitting values:", values);
       console.log("Submitting values:", user);
-      const res = await createOrUpdateService({ ...values, id: service?.id });
+      const res = await createOrUpdateService({
+        ...values, id: service?.id,
+        works: [],
+        createdAt: "",
+        updatedAt: ""
+      });
       console.log("API response:", res);
       setService(res.service);
       handleSuccess();

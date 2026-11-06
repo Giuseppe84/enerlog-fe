@@ -32,6 +32,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar"
 import { fetchClientById, fetchAvatar } from '@/api/clients';
+import{fetchSubjectsByClientId} from '@/api/subjects';
 import { useParams, useRouter } from "next/navigation";
 import { User, FileText, Users, DollarSign, Calendar, IdCard, TrendingUp, House, MoreVertical, Pencil, Trash2, Briefcase, Eye } from 'lucide-react';
 import { format } from 'date-fns';
@@ -44,7 +45,7 @@ import { DeleteClientModal } from '@/components/modals/DeleteClientModal';
 import Image from "next/image";
 import ImageUploadModal from '@/components/modals/ImageUploadModal';
 import { TagButtons } from '@/components/tags';
-import { AssociatedSubjectsModal } from '@/components/modals/AssociatedSubjectsModal';
+import { AssociatedSubjectsModal } from '@/components/modals/SubjectsModal';
 
 type Work = {
   id: string;
@@ -61,6 +62,13 @@ type Payment = {
   paymentStatus: string;
   paymentMethod: string;
   createdAt: string;
+};
+
+type Subject = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  companyName?: string;
 };
 
 const InfoSection = ({ icon: Icon, label, value }: { icon: React.ComponentType<{ className: string }>; label: string; value: string | React.ReactNode }) => (
@@ -105,6 +113,7 @@ export default function ClientDetailPage() {
   const [client, setClient] = useState<Client | null>(null);
   const [avatar, setAvatar] = useState<string | null>(null);
   const [works, setWorks] = useState<Work[]>([]);
+  const [subjects, setSubjects] = useState<Subject[]>([]);
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -132,11 +141,12 @@ export default function ClientDetailPage() {
     const loadData = async () => {
       try {
         if (!clientId) return;
-        const [clientData] = await Promise.all([
+        const [clientData, subjectsData] = await Promise.all([
           fetchClientById(clientId),
-          fetchAvatar(clientId),
+          fetchSubjectsByClientId(clientId),
         ]);
         setClient(clientData);
+        setSubjects(subjectsData || []);
         const avatarUrl = await fetchAvatar(clientId);
         setAvatar(avatarUrl);
       } catch (error) {
@@ -329,7 +339,7 @@ export default function ClientDetailPage() {
                 onClick={() => setSubjectsModalOpen(true)}
               >
                 <Users className="w-6 h-6 text-primary" />
-                <span>Soggetti Associati ({client.clientSubjects?.length || 0})</span>
+                <span>Soggetti Associati ({subjects?.data.length || 0})</span>
               </Button>
 
               <Button
@@ -422,7 +432,7 @@ export default function ClientDetailPage() {
           <AssociatedSubjectsModal
             open={subjectsModalOpen}
             onOpenChange={setSubjectsModalOpen}
-            clientSubjects={client.clientSubjects}
+            clientSubjects={subjects}
           />
 
           {/* MODALE PAGAMENTI */}
@@ -475,4 +485,8 @@ export default function ClientDetailPage() {
       </SidebarInset>
     </SidebarProvider>
   );
+}
+
+function fetchSubjectsByClient(clientId: string): any {
+  throw new Error('Function not implemented.');
 }

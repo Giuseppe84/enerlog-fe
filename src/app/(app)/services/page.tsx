@@ -17,14 +17,15 @@ import { fetchServices } from '@/api/services';
 import { useTranslation } from 'react-i18next';
 import type { Service } from '@/types/service'
 
-import { EmptySubject } from '@/components/emptySubjects';
+import { EmptyServices } from '@/components/emptyServices';
 import { Button } from '@/components/ui/button';
+import { TableHeader, TableRow, TableHead, TableBody, TableCell, Table } from "@/components/ui/table"
 
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ServiceCard } from './ServiceItem';
+import { ServiceItem } from './ServiceItem';
 import { Edit, Trash2, Search, UserPlus } from 'lucide-react';
-import {ServiceModal} from "@/components/modals/ServiceFormModal"
+import { ServiceModal } from "@/components/modals/ServiceFormModal"
 
 
 
@@ -43,7 +44,7 @@ export default function Page() {
 
   const loadServices = async () => {
     try {
-      const {data, meta} = await fetchServices();
+      const { data, meta } = await fetchServices();
       console.log('Fetched services:', { data });
       // Ensure data is an array before setting it to state
       setServices(Array.isArray(data) ? data : []);
@@ -103,7 +104,7 @@ export default function Page() {
 
 
 
-        {services.length === 0 ? <EmptySubject /> : (
+        {services.length === 0 ? <EmptyServices onClick={() => setEditOpen(true)} /> : (
 
           <div className="space-y-6 p-5" >
             <div className="flex justify-between items-center">
@@ -131,12 +132,39 @@ export default function Page() {
               <CardContent>
                 <div className="flex flex-wrap gap-4">
 
-                  {filteredServices.map(service => (
+
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Nome</TableHead>
+                        <TableHead>Codice</TableHead>
+                        <TableHead>Categoria</TableHead>
+
+                        <TableHead>Stato</TableHead>
+                        <TableHead>Data inserimento</TableHead>
+                        <TableHead>Prezzo</TableHead>
+
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+
+                      {filteredServices.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={5} className="text-center text-muted-foreground">
+                            Nessun servizio trovato
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        filteredServices.map((service) => {
+                          return (
+                            <ServiceItem service={service} key={service.id} />
+                          )
+                        })
+                      )}
+                    </TableBody>
+                  </Table>
 
 
-                    <ServiceCard service={service} key={service.id} />
-
-                  ))}
 
 
                 </div>
@@ -178,7 +206,7 @@ export default function Page() {
 
           </div>
         )}
-        <ServiceModal isOpen={editOpen} setIsOpen={setEditOpen} service={{}} setService={(service) => addService(service)} />
+        <ServiceModal isOpen={editOpen} setIsOpen={setEditOpen} service={null} setService={(service) => addService(service)} />
       </SidebarInset>
     </SidebarProvider>
   )
