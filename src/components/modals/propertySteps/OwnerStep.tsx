@@ -9,7 +9,7 @@ import { fetchSubjectById } from "@/api/subjects"
 import { useEffect, useState } from "react";
 import { Subject } from "@/types/subject";
 import { Button } from "@/components/ui/button"
-import { SubjectSelector } from "@/components/fields/subject-selector"
+import { SubjectSelector } from "@/components/selectors/subject-selector"
 import { generateBuildingName } from "@/utils/generate-building-name"
 
 

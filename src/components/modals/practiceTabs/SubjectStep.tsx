@@ -13,9 +13,9 @@ import { Subject } from "@/types/subject";
 import { Client } from "@/types/client";
 import { Property } from "@/types/property";
 import { Button } from "@/components/ui/button"
-import { SubjectSelector } from "@/components/fields/subject-selector"
-import { ClientSelector } from "@/components/fields/client-selector"
-import { PropertySelector } from "@/components/fields/property-selector"
+import { SubjectSelector } from "@/components/selectors/subject-selector"
+import { ClientSelector } from "@/components/selectors/client-selector"
+import { PropertySelector } from "@/components/selectors/property-selector"
 import { generateBuildingName } from "@/utils/generate-building-name"
 import { CTPracticeFormValues } from '@/components/modals/PracticeFormModal'
 

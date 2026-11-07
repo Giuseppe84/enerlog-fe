@@ -1,4 +1,4 @@
-import { ClientSelector } from '@/components/fields/client-selector';
+import { ClientSelector } from '@/components/selectors/client-selector';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";

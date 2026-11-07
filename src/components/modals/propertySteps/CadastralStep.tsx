@@ -3,7 +3,7 @@ import { Controller, UseFormReturn } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { PropertyFormValues } from "@/validators/propertySchema";
 import { Trash2, Plus } from "lucide-react";
-import { CadastralCategorySelect } from "@/components/fields/cadastral-category-select"
+import { CadastralCategorySelect } from "@/components/selectors/cadastral-category-select"
 import { Label } from "@/components/ui/label";
 import { useEffect } from "react";
 import CitySearch from '@/components/fields/city-search';

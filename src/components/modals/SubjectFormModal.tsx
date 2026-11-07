@@ -40,7 +40,6 @@ import CodiceFiscale from "codice-fiscale-js";
 
 import { useAuth } from "@/context/AuthProvider";
 import CitySearch from '@/components/fields/city-search';
-import { CountrySelector } from '@/components/fields/country-selector';
 
 
 type SubjectInput = z.infer<typeof SubjectFormSchema>;

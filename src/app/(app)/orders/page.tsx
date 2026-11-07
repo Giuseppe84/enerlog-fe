@@ -24,7 +24,7 @@ import { useEffect, useState } from 'react';
 import { fetchOrders } from '@/api/orders';
 import { useTranslation } from 'react-i18next';
 import type { Order, OrdersFilter } from '@/types/order'
-
+import {useRouter} from "next/navigation";
 import { EmptySubject } from '@/components/emptySubjects';
 import { Button } from '@/components/ui/button';
 
@@ -32,7 +32,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 import { Edit, Trash2, Search, UserPlus } from 'lucide-react';
-
+import { OrderWizardModal } from "./OrderWizardModal"
 import OrderCard from './OrderItem';
 import SearchWithFilters from "./OrderSearchFilters"
 
@@ -81,7 +81,7 @@ export default function Page() {
     setPage(1);
     loadOrders()
   }, [filters]);
-
+const router = useRouter();
 
   useEffect(() => {
     setPage(1);
@@ -128,9 +128,9 @@ export default function Page() {
         <div className="space-y-6 p-5" >
           <div className="flex justify-between items-center">
             <h1 className="text-3xl font-bold">Servizi</h1>
-            <Button onClick={() => setEditOpen(true)} >
+            <Button onClick={() => router.push('/orders/new')} className="w-full sm:w-auto">
               <UserPlus className="mr-2 h-4 w-4" />
-              Aggiungi ordine
+              Nuovo ordine
             </Button>
           </div>
 
@@ -139,7 +139,7 @@ export default function Page() {
             <SearchWithFilters filters={filters} setFilters={setFilters} searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
           </div>
 
-          {orders.length === 0 ? <EmptySubject /> : (<Card>
+          <Card>
             <CardHeader>
               <CardTitle>{t('clients.listTitle')}</CardTitle>
             </CardHeader>
@@ -153,7 +153,7 @@ export default function Page() {
                       <TableHead>Status</TableHead>
                       <TableHead>Importo</TableHead>
                       <TableHead>Da saldare</TableHead>
-                    
+
 
                       <TableHead>Data Creazione</TableHead>
                       <TableHead className="text-right">Azioni</TableHead>
@@ -211,8 +211,8 @@ export default function Page() {
                 </div>
               </div>
             </CardContent>
-          </Card>)}
-
+          </Card>
+          <OrderWizardModal open={editOpen} setOpen={setEditOpen} onOpenChange={setEditOpen} />
         </div>
       </SidebarInset>
     </SidebarProvider>

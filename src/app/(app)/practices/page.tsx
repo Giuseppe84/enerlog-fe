@@ -13,7 +13,7 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
-
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
     Table,
     TableBody,
@@ -37,7 +37,7 @@ import { useTranslation } from 'react-i18next';
 import type { Client } from '@/types/client'
 import { PracticesRow } from './PracticeItem';
 
-import { EmptySubject } from '@/components/emptySubjects';
+
 import { Button } from '@/components/ui/button';
 import { Practice } from "@/types/practices";
 
@@ -166,7 +166,13 @@ export default function Page() {
 
 
                 <div className="space-y-6 p-5" >
-                   
+                       <div className="flex justify-between items-center">
+              <h1 className="text-3xl font-bold">Pratiche</h1>
+              <Button onClick={() => setEditOpen(true)} >
+                <UserPlus className="mr-2 h-4 w-4" />
+                Aggiungi pratica
+              </Button>
+            </div>
 
 
                     <div className="relative">
@@ -175,9 +181,7 @@ export default function Page() {
                     </div>
 
 
-                    {practices.length === 0 ? <EmptySubject /> : (
-
-
+                
 
                         <Card className="w-full">
                             <CardHeader>
@@ -255,10 +259,11 @@ export default function Page() {
                                     </div>
                                 </div>
                             </CardContent>
-                        </Card>)}
-
+                        </Card>
+       
                 </div>
             </SidebarInset>
+          
         </SidebarProvider>
     )
 }

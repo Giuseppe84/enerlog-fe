@@ -5,6 +5,12 @@ import { Badge } from "@/components/ui/badge";
 import { fetchProperties } from "@/api/properties";
 import { Property } from "@/types/property";
 import { Subject } from "@/types/subject";
+import {PropertyFormModal} from "@/components/modals/PropertyFormModal"
+import { Button } from "@/components/ui/button"
+import {
+  Plus,
+} from "lucide-react"
+
 
 interface PropertySelectorProps {
   onSelectProperty: (property: Property) => void;
@@ -35,6 +41,8 @@ export const PropertySelector: React.FC<PropertySelectorProps> = ({
 }) => {
   const [properties, setProperties] = useState<Property[]>([]);
   const [search, setSearch] = useState("");
+  const [newPropertyModalOpen, setNewPropertyModalOpen] = useState(false);
+
 
   useEffect(() => {
 
@@ -59,7 +67,7 @@ export const PropertySelector: React.FC<PropertySelectorProps> = ({
       />
 
       <ScrollArea className="h-[320px] border rounded-md">
-        {subject && <p>Soggetti associati al soggetto {subject.companyName} {subject.firstName} {subject.lastName}</p>}
+        {subject && <p>Immobili associati al soggetto {subject.companyName} {subject.firstName} {subject.lastName}</p>}
         <div className="p-2 space-y-2">
           {filtered.map(property => (
             <div
@@ -97,7 +105,26 @@ export const PropertySelector: React.FC<PropertySelectorProps> = ({
               Nessun soggetto trovato
             </div>
           )}
+          
+           <Button
+            type="button"
+            variant="ghost"
+            className="w-full gap-2 border border-dashed text-muted-foreground"
+            onClick={()=>setNewPropertyModalOpen(true)}
+          >
+            <Plus className="h-4 w-4" /> Aggiungi Soggetto
+          </Button>
         </div>
+    
+      <PropertyFormModal
+        open={newPropertyModalOpen}
+        setIsOpen={setNewPropertyModalOpen}
+        property={null}
+        setProperty={(property: Property) => {
+          setProperties((prev) => [...prev, property]);
+          onSelectProperty(property);
+          setNewPropertyModalOpen(false);
+        }}/>
       </ScrollArea>
     </div>
   );

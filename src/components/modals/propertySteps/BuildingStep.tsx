@@ -4,9 +4,9 @@ import { Label } from "@/components/ui/label";
 import { Controller, UseFormReturn } from 'react-hook-form';
 import { Textarea } from "@/components/ui/textarea";
 import { PropertyFormValues } from "@/validators/propertySchema"
-import { UsageDestinationSelect } from "@/components/fields/usage-destination-selector"
-import { BuildingTypeSelect } from "@/components/fields/building-types-selector"
-import { PropertyTypeSelect } from "@/components/fields/property-types-selector";
+import { UsageDestinationSelect } from "@/components/selectors/usage-destination-selector"
+import { BuildingTypeSelect } from "@/components/selectors/building-types-selector"
+import { PropertyTypeSelect } from "@/components/selectors/property-types-selector";
 import {
   Select,
   SelectContent,

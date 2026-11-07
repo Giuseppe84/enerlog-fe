@@ -5,7 +5,11 @@ import { Badge } from "@/components/ui/badge";
 import { fetchSubjects, fetchSubjectsByClientId } from "@/api/subjects";
 import { Subject } from "@/types/subject";
 import { Client } from "@/types/client";
-
+import { Button } from "@/components/ui/button"
+import {SubjectModal} from "@/components/modals/SubjectFormModal"
+import {
+  Plus,
+} from "lucide-react"
 interface SubjectSelectorProps {
   onSelectSubject: (subject: Subject) => void;
   client?: Client;
@@ -35,6 +39,7 @@ export const SubjectSelector: React.FC<SubjectSelectorProps> = ({
 }) => {
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [search, setSearch] = useState("");
+  const [newSubjectModalOpen, setNewSubjectModalOpen] = useState(false);
 
   useEffect(() => {
     if (client)
@@ -128,10 +133,29 @@ export const SubjectSelector: React.FC<SubjectSelectorProps> = ({
           {filtered.length === 0 && (
             <div className="text-center py-8 text-muted-foreground">
               Nessun soggetto trovato
+
             </div>
+
           )}
+          <Button
+            type="button"
+            variant="ghost"
+            className="w-full gap-2 border border-dashed text-muted-foreground"
+            onClick={()=>setNewSubjectModalOpen(true)}
+          >
+            <Plus className="h-4 w-4" /> Aggiungi Soggetto
+          </Button>
         </div>
       </ScrollArea>
+      <SubjectModal
+        isOpen={newSubjectModalOpen}
+        setIsOpen={setNewSubjectModalOpen}
+        subject={null}
+        setSubject={(subject) => {
+          setSubjects((prev) => [...prev, subject]);
+          onSelectSubject(subject);
+          setNewSubjectModalOpen(false);
+        }}/>
     </div>
   );
 };

@@ -25,8 +25,8 @@ import type { PracticesFilter } from "@/types/practices";
 import type { Client } from "@/types/client";
 import type { Subject } from "@/types/subject";
 
-import { ClientSelector } from "@/components/fields/client-selector";
-import { SubjectSelector } from "@/components/fields/subject-selector";
+import { ClientSelector } from "@/components/selectors/client-selector";
+import { SubjectSelector } from "@/components/selectors/subject-selector";
 
 interface SearchWithPracticeFiltersProps {
     filters: PracticesFilter;

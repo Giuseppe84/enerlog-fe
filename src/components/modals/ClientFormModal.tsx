@@ -28,7 +28,7 @@ import {
   FieldSet,
 } from "@/components/ui/field"
 import CitySearch from '@/components/fields/city-search';
-import { CountrySelector } from '@/components/fields/country-selector';
+import { CountrySelector } from '@/components/selectors/country-selector';
 import { PersonType, LEGAL_FORMS } from '@/data/legal-forms';
 import { clientSchema } from '@/validators/clientSchema';
 

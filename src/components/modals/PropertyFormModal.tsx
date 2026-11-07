@@ -33,7 +33,7 @@ import { generateBuildingName } from "@/utils/generate-building-name";
 interface PropertyFormModalProps {
   open: boolean;
   setIsOpen: (open: boolean) => void;
-  property?: Property;
+  property?: Property| null;
   setProperty: (data: Property) => void;
 }
 
