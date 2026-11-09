@@ -17,10 +17,19 @@ import { toast } from "sonner";
 import { useForm, Controller, SubmitHandler } from 'react-hook-form';
 import { z } from 'zod';
 
-
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/context/AuthProvider";
+
 
 
 type SubjectInput = z.infer<typeof createServiceSchema>;
@@ -32,19 +41,32 @@ interface ServiceFormModalProps {
   setIsOpen: (open: boolean) => void;
 }
 
+// Fuori dal componente: non viene ricreata a ogni render
+const SERVICE_TYPES = [
+  { label: "Generica", value: "GENERIC" },
+  { label: "Conto termico", value: "CONTO_TERMICO" },
+  { label: "Attestato prestazione energetica", value: "APE" },
+  { label: "Pratica connessione fotovoltaico", value: "FV_CONNESSIONE" },
+  { label: "Pratica metano", value: "PT_MET" },
+  { label: "Pratica detrazione fiscale", value: "ENEA" },
+  { label: "Calcolo energetico", value: "L10" },
+  { label: "Progetto impianto elettrico", value: "PG_EL" },
+  { label: "Progetto impianto climatizzazione", value: "PG_CL" },
+]
 
 export function ServiceModal({ service, isOpen, setIsOpen, setService }: ServiceFormModalProps) {
   const EMPTY_SERVICE_FORM: SubjectInput = {
     name: "",
     code: "",
+    type: "GENERIC", // valore iniziale valido: il select non parte mai "vuoto"
     color: "#FFFFAA",
     description: "",
     category: "",
     image: "",
     icon: "",
-     url: "",
-     isActive:true,
-     price:100
+    url: "",
+    isActive: true,
+    price: 100
   }
 
   const form = useForm({
@@ -131,6 +153,47 @@ export function ServiceModal({ service, isOpen, setIsOpen, setService }: Service
           <Controller name="code" control={form.control} render={({ field, fieldState }) => (
             <div>
               <Label>Codice</Label>
+              <Input {...field} value={field.value ?? ""} className={fieldState.error ? "border-destructive" : ""} />
+              {fieldState.error && <p className="text-sm text-destructive">{fieldState.error.message}</p>}
+            </div>
+          )} />
+          <Controller name="type" control={form.control} render={({ field, fieldState }) => {
+            const selected = SERVICE_TYPES.find((item) => item.value === field.value)
+            return (
+              <div>
+                <Label htmlFor="service-type">Tipo</Label>
+                <Select
+                  name={field.name}
+                  value={field.value ?? ""}
+                  onValueChange={(value) => field.onChange(value ?? "")}
+                >
+                  <SelectTrigger
+                    id="service-type"
+                    ref={field.ref}
+                    onBlur={field.onBlur}
+                    aria-invalid={!!fieldState.error}
+                    className={`w-full ${fieldState.error ? "border-destructive" : ""}`}
+                  >
+                    <SelectValue placeholder="Seleziona un tipo">{selected?.label}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Tipo di servizio</SelectLabel>
+                      {SERVICE_TYPES.map((item) => (
+                        <SelectItem key={item.value} value={item.value}>
+                          {item.label}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                {fieldState.error && <p className="text-sm text-destructive">{fieldState.error.message}</p>}
+              </div>
+            )
+          }} />
+          <Controller name="description" control={form.control} render={({ field, fieldState }) => (
+            <div>
+              <Label>Descrizione</Label>
               <Input {...field} value={field.value ?? ""} className={fieldState.error ? "border-destructive" : ""} />
               {fieldState.error && <p className="text-sm text-destructive">{fieldState.error.message}</p>}
             </div>

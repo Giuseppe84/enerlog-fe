@@ -35,7 +35,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, } from '@/co
 import { Edit, Trash2, Search, UserPlus } from 'lucide-react';
 
 import SubjectItem from "./SubjectItem";
-import { SubjectModal } from "@/components/modals/SubjectFormModal";
+import { SubjectModal } from "@/components/forms/SubjectFormModal";
 
 
 

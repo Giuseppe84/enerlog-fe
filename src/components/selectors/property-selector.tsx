@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { fetchProperties } from "@/api/properties";
 import { Property } from "@/types/property";
 import { Subject } from "@/types/subject";
-import {PropertyFormModal} from "@/components/modals/PropertyFormModal"
+import {PropertyFormModal} from "@/components/forms/PropertyFormModal"
 import { Button } from "@/components/ui/button"
 import {
   Plus,

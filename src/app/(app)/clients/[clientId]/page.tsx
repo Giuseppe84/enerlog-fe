@@ -39,7 +39,7 @@ import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { useTranslation } from 'react-i18next';
 import { Client } from '@/types/client';
-import { ClientFormModal } from '@/components/modals/ClientFormModal';
+import { ClientFormModal } from '@/components/forms/ClientFormModal';
 import { DeleteClientModal } from '@/components/modals/DeleteClientModal';
 
 import Image from "next/image";

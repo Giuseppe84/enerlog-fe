@@ -54,7 +54,7 @@ export interface PracticesData {
 }
 
 export type PracticesFilter = {
-  query:string,
+  query?:string,
   page?: number,
   limit?: number,
   clientId?: string,

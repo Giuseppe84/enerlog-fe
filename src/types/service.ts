@@ -21,6 +21,7 @@ export interface Service {
   image?: string | null;
   icon?: string | null;
   description?: string | null;
+  TYPE?: string | null;
   notes?: string | null;
   name: string;
   price: number;      // Decimal convertito in number

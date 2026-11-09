@@ -16,7 +16,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { ClientFormModal } from '@/components/modals/ClientFormModal';
+import { ClientFormModal } from '@/components/forms/ClientFormModal';
 import { Client } from "@/types/client"
 
 

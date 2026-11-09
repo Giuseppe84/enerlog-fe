@@ -32,6 +32,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useParams, useRouter } from "next/navigation"
+import { toast } from "sonner"
 import {
   MoreVertical,
   Pencil,
@@ -42,48 +43,85 @@ import {
   Wallet,
   Clock,
   TrendingUp,
+  Landmark,
   FolderOpen,
   ChevronRight,
   ExternalLink,
   type LucideIcon,
 } from "lucide-react"
 import { useTranslation } from "react-i18next"
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Label,
+  PolarRadiusAxis,
+  RadialBar,
+  RadialBarChart,
+  XAxis,
+  YAxis,
+} from "recharts"
+import {
+  ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from "@/components/ui/chart"
 
 import type { Service } from "@/types/service"
+import type { Practice } from "@/types/practices"
 import { fetchServiceById } from "@/api/services"
-import { ServiceModal } from "@/components/modals/ServiceFormModal"
-// TODO: crea questa chiamata (es. GET /services/:id/works?include=payments)
-// import { fetchWorksByService } from "@/api/works"
+// TODO: adatta al nome reale della chiamata. Va aggiunto `serviceId?: string`
+// a PracticesFilter e gestito dal backend (in ogni caso sotto si filtra di nuovo per sicurezza).
+import { fetchPractices } from "@/api/practices"
+import { ServiceModal } from "@/components/forms/ServiceFormModal"
 
-// ---------------------------------------------------------------------------
-// Tipi estesi: `Service.works` contiene solo { id }, quindi per la dashboard
-// servono le pratiche con stato e pagamenti. Adatta ai tuoi tipi reali.
-// ---------------------------------------------------------------------------
-type WorkStatus = "IN_PROGRESS" | "COMPLETED" | "CANCELLED"
-type PaymentStatus = "PAID" | "PENDING"
+// La risposta dell'API ha `serviceId` ma non l'oggetto `service` annidato
+type ServicePractice = Practice & { serviceId?: string | null }
 
-interface ServicePayment {
-  id: string
+type ModalKey =
+  | "info"
+  | "all"
+  | "inProgress"
+  | "completed"
+  | "paid"
+  | "pending"
+  | "chartCompleted"
+  | "chartToComplete"
+  | "chartPaid"
+  | "chartUnpaid"
+  | null
+
+type PeriodKey = "3M" | "6M" | "1Y" | "5Y"
+
+const PERIODS: { key: PeriodKey; label: string; months: number; description: string }[] = [
+  { key: "3M", label: "3 mesi", months: 3, description: "ultimi 3 mesi" },
+  { key: "6M", label: "6 mesi", months: 6, description: "ultimi 6 mesi" },
+  { key: "1Y", label: "1 anno", months: 12, description: "ultimo anno" },
+  { key: "5Y", label: "5 anni", months: 60, description: "ultimi 5 anni" },
+]
+
+const periodStart = (months: number) => {
+  const d = new Date()
+  d.setMonth(d.getMonth() - months)
+  return d
+}
+
+/** Quota di importo di una pratica, ripartita dai dati dell'ordine. */
+interface PracticeShare {
+  practice: Practice
   amount: number
-  date?: string | null
-  status: PaymentStatus
-  description?: string | null
+  orderPaidPct: number
 }
-
-interface ServiceWork {
-  id: string
-  title?: string | null
-  clientName?: string | null
-  status: WorkStatus
-  amount?: number | null      // importo concordato
-  startedAt?: string | null
-  completedAt?: string | null
-  payments: ServicePayment[]
-}
-
-type ModalKey = "info" | "inProgress" | "completed" | "paid" | "pending" | null
 
 // ---------- Utility ----------
+
+const num = (value: unknown) => {
+  const n = Number(value)
+  return Number.isFinite(n) ? n : 0
+}
 
 const formatEuro = (value: number | null | undefined) =>
   `€ ${Number(value || 0).toLocaleString("it-IT", {
@@ -94,8 +132,56 @@ const formatEuro = (value: number | null | undefined) =>
 const formatDate = (value?: string | null) =>
   value ? new Date(value).toLocaleDateString("it-IT") : "—"
 
-const sum = (items: { amount: number }[]) =>
-  items.reduce((acc, i) => acc + (i.amount || 0), 0)
+const sum = (values: number[]) => values.reduce((acc, v) => acc + v, 0)
+
+// Stati considerati "conclusa" / "annullata". Adatta ai valori reali di Practice.status
+const COMPLETED_STATUSES = ["COMPLETED", "DONE", "CLOSED"]
+const CANCELLED_STATUSES = ["CANCELLED", "CANCELED"]
+
+const statusOf = (p: Practice) => String(p.status ?? "").toUpperCase()
+const isCompleted = (p: Practice) => COMPLETED_STATUSES.includes(statusOf(p))
+const isCancelled = (p: Practice) => CANCELLED_STATUSES.includes(statusOf(p))
+const isDraft = (p: Practice) => statusOf(p) === "DRAFT"
+
+const subjectName = (s?: Practice["subject"] | null) =>
+  s?.companyName || [s?.lastName, s?.firstName].filter(Boolean).join(" ") || ""
+
+const propertyName = (p?: Practice["property"] | null) =>
+  [p?.address, p?.city].filter(Boolean).join(", ")
+
+/**
+ * Estrae elementi e numero di pagine da una risposta { data: [...], meta: { pages } }.
+ * Funziona sia con il body diretto sia con la risposta axios (body in `.data`).
+ */
+const extractPage = (res: any): { items: ServicePractice[]; pages: number } => {
+  const body = Array.isArray(res?.data?.data) ? res.data : res
+  const items = Array.isArray(body) ? body : Array.isArray(body?.data) ? body.data : []
+  const pages = Number(body?.meta?.pages ?? 1) || 1
+  return { items, pages }
+}
+
+const PAGE_LIMIT = 100
+const MAX_PAGES = 50
+
+/** Scarica tutte le pagine di pratiche del servizio. */
+async function loadServicePractices(serviceId: string): Promise<ServicePractice[]> {
+  const request = (page: number) =>
+    fetchPractices({ query: "", serviceId, page, limit: PAGE_LIMIT }).then(extractPage)
+
+  const first = await request(1)
+  const lastPage = Math.min(first.pages, MAX_PAGES)
+  const rest = await Promise.all(Array.from({ length: Math.max(lastPage - 1, 0) }, (_, i) => request(i + 2)))
+
+  return [...first.items, ...rest.flatMap((r) => r.items)]
+}
+
+// L'ordine contiene solo il pagato totale: lo ripartisco sulle pratiche in proporzione al loro importo.
+const orderPaidPct = (p: Practice) => {
+  const total = num(p.order?.totalAmount)
+  return total > 0 ? Math.min(num(p.order?.paidAmount) / total, 1) : 0
+}
+const paidShareOf = (p: Practice) => num(p.amount) * orderPaidPct(p)
+const dueShareOf = (p: Practice) => Math.max(num(p.amount) - paidShareOf(p), 0)
 
 // ---------- Componenti di supporto ----------
 
@@ -183,20 +269,269 @@ function InfoRow({ label, children }: { label: string; children: ReactNode }) {
   )
 }
 
-function WorkRow({ work }: { work: ServiceWork }) {
+function practiceDateLabel(p: Practice) {
+  if (isCompleted(p)) return `Conclusa il ${formatDate(p.endDate ?? p.updatedAt)}`
+  if (isDraft(p)) return `Bozza creata il ${formatDate(p.createdAt)}`
+  return `Avviata il ${formatDate(p.startDate ?? p.createdAt)}`
+}
+
+function PracticeRow({ practice }: { practice: Practice }) {
+  const subject = subjectName(practice.subject)
+  const property = propertyName(practice.property)
   return (
     <div className="flex items-center justify-between gap-4 rounded-lg border p-4">
       <div className="min-w-0">
-        <p className="truncate font-medium">{work.title || `Pratica ${work.id}`}</p>
+        <p className="truncate font-medium">{practice.name || `Pratica ${practice.id}`}</p>
         <p className="mt-1 text-xs text-muted-foreground">
-          {work.clientName ? `${work.clientName} · ` : ""}
-          {work.status === "COMPLETED"
-            ? `Conclusa il ${formatDate(work.completedAt)}`
-            : `Avviata il ${formatDate(work.startedAt)}`}
+          {[subject, property].filter(Boolean).join(" · ")}
+          {subject || property ? " · " : ""}
+          {practiceDateLabel(practice)}
         </p>
       </div>
-      {work.amount != null && <p className="shrink-0 font-semibold">{formatEuro(work.amount)}</p>}
+      <p className="shrink-0 font-semibold">{formatEuro(num(practice.amount))}</p>
     </div>
+  )
+}
+
+function ShareRow({ share, tone }: { share: PracticeShare; tone: string }) {
+  const { practice, amount, orderPaidPct } = share
+  const subject = [subjectName(practice.subject), propertyName(practice.property)].filter(Boolean).join(" · ")
+  return (
+    <div className="flex items-center justify-between gap-4 rounded-lg border p-4">
+      <div className="min-w-0">
+        <p className="truncate font-medium">{practice.name || `Pratica ${practice.id}`}</p>
+        <p className="mt-1 text-xs text-muted-foreground">
+          {subject ? `${subject} · ` : ""}
+          ordine pagato al {Math.round(orderPaidPct * 100)}% · importo pratica {formatEuro(num(practice.amount))}
+        </p>
+      </div>
+      <p className={`shrink-0 font-semibold ${tone}`}>{formatEuro(amount)}</p>
+    </div>
+  )
+}
+
+// ---------- Grafici (shadcn/ui chart + Recharts) ----------
+
+const completionConfig = {
+  completed: { label: "Completate", color: "#10b981" },
+  toComplete: { label: "Da completare", color: "#fbbf24" },
+} satisfies ChartConfig
+
+const paymentConfig = {
+  collected: { label: "Incassato", color: "#10b981" },
+  outstanding: { label: "Insoluto", color: "#fb7185" },
+} satisfies ChartConfig
+
+const monthlyConfig = {
+  completed: { label: "Completate", color: "#10b981" },
+  toComplete: { label: "Da completare", color: "#fbbf24" },
+} satisfies ChartConfig
+
+/** Grafico radiale ad anello con segmenti impilati, valore al centro e tooltip. */
+function RadialSummaryChart({
+  config,
+  values,
+  keys,
+  centerValue,
+  centerLabel,
+  formatValue = (v) => String(v),
+}: {
+  config: ChartConfig
+  values: Record<string, number>
+  keys: string[]
+  centerValue: string
+  centerLabel: string
+  formatValue?: (value: number) => string
+}) {
+  const total = keys.reduce((acc, k) => acc + (values[k] || 0), 0)
+
+  if (total <= 0) {
+    return (
+      <div className="flex h-44 items-center justify-center text-sm text-muted-foreground">
+        Nessun dato nel periodo
+      </div>
+    )
+  }
+
+  return (
+    <ChartContainer config={config} className="mx-auto h-44 w-44">
+      <RadialBarChart data={[values]} startAngle={90} endAngle={-270} innerRadius={62} outerRadius={84}>
+        <ChartTooltip
+          cursor={false}
+          content={
+            <ChartTooltipContent
+              hideLabel
+              formatter={(value, name) => (
+                <div className="flex w-full items-center justify-between gap-4">
+                  <span className="flex items-center gap-2">
+                    <span
+                      className="h-2.5 w-2.5 shrink-0 rounded-[2px]"
+                      style={{ backgroundColor: `var(--color-${String(name)})` }}
+                    />
+                    {config[String(name)]?.label}
+                  </span>
+                  <span className="font-mono font-medium tabular-nums text-foreground">
+                    {formatValue(Number(value))}
+                  </span>
+                </div>
+              )}
+            />
+          }
+        />
+        <PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
+          <Label
+            content={({ viewBox }) => {
+              if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                return (
+                  <text x={viewBox.cx} y={viewBox.cy} textAnchor="middle">
+                    <tspan x={viewBox.cx} y={(viewBox.cy || 0) - 4} className="fill-foreground text-2xl font-bold">
+                      {centerValue}
+                    </tspan>
+                    <tspan x={viewBox.cx} y={(viewBox.cy || 0) + 16} className="fill-muted-foreground text-xs">
+                      {centerLabel}
+                    </tspan>
+                  </text>
+                )
+              }
+              return null
+            }}
+          />
+        </PolarRadiusAxis>
+        {keys.map((k) => (
+          <RadialBar
+            key={k}
+            dataKey={k}
+            stackId="a"
+            cornerRadius={4}
+            fill={`var(--color-${k})`}
+            className="stroke-transparent stroke-2"
+          />
+        ))}
+      </RadialBarChart>
+    </ChartContainer>
+  )
+}
+
+interface TrendRow {
+  label: string
+  dot: string // classe Tailwind bg-*
+  value: string
+  hint?: string
+  onClick: () => void
+}
+
+/** Card con grafico radiale, riepilogo e link che aprono l'elenco delle pratiche. */
+function TrendCard({
+  title,
+  description,
+  chart,
+  summary,
+  rows,
+}: {
+  title: string
+  description: string
+  chart: ReactNode
+  summary: string
+  rows: TrendRow[]
+}) {
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-base">{title}</CardTitle>
+        <p className="text-sm text-muted-foreground">{description}</p>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {chart}
+        <p className="text-center text-sm text-muted-foreground">{summary}</p>
+        <div className="space-y-2">
+          {rows.map((row) => (
+            <button
+              key={row.label}
+              type="button"
+              onClick={row.onClick}
+              className="group flex w-full items-center justify-between gap-3 rounded-lg border px-3 py-2 text-left text-sm transition-colors hover:border-primary hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <span className="flex min-w-0 items-center gap-2">
+                <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${row.dot}`} />
+                <span className="font-medium">{row.label}</span>
+                {row.hint && <span className="truncate text-xs text-muted-foreground">{row.hint}</span>}
+              </span>
+              <span className="flex shrink-0 items-center gap-1 font-semibold">
+                {row.value}
+                <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+              </span>
+            </button>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+interface MonthBucket {
+  key: number // anno * 12 + mese
+  date: string // primo giorno del mese (ISO)
+  completed: number
+  toComplete: number
+  total: number
+}
+
+/** Barre impilate: numero di pratiche create per ogni mese (completate + da completare). */
+function MonthlyBars({ data, periodLabel }: { data: MonthBucket[]; periodLabel: string }) {
+  const total = data.reduce((acc, m) => acc + m.total, 0)
+  const long = data.length > 12
+
+  const shortFmt = new Intl.DateTimeFormat("it-IT", { month: "short" })
+  const longFmt = new Intl.DateTimeFormat("it-IT", { month: "long", year: "numeric" })
+
+  const chartData = data.map((m) => {
+    const d = new Date(m.date)
+    return {
+      label: long ? `${shortFmt.format(d)} ${String(d.getFullYear()).slice(2)}` : shortFmt.format(d),
+      fullLabel: longFmt.format(d),
+      completed: m.completed,
+      toComplete: m.toComplete,
+    }
+  })
+
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-base">Pratiche per mese</CardTitle>
+        <p className="text-sm text-muted-foreground">
+          Pratiche create ogni mese ({periodLabel}) · {total} in totale
+        </p>
+      </CardHeader>
+      <CardContent>
+        {total === 0 ? (
+          <p className="py-10 text-center text-sm text-muted-foreground">Nessuna pratica nel periodo selezionato.</p>
+        ) : (
+          <ChartContainer config={monthlyConfig} className="h-64 w-full">
+            <BarChart accessibilityLayer data={chartData}>
+              <CartesianGrid vertical={false} />
+              <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} minTickGap={12} />
+              <YAxis allowDecimals={false} tickLine={false} axisLine={false} width={28} />
+              <ChartTooltip
+                content={
+                  <ChartTooltipContent
+                    labelFormatter={(_, payload) => payload?.[0]?.payload?.fullLabel ?? ""}
+                  />
+                }
+              />
+              <ChartLegend content={<ChartLegendContent />} />
+              <Bar dataKey="completed" stackId="a" fill="var(--color-completed)" maxBarSize={32} />
+              <Bar
+                dataKey="toComplete"
+                stackId="a"
+                fill="var(--color-toComplete)"
+                radius={[4, 4, 0, 0]}
+                maxBarSize={32}
+              />
+            </BarChart>
+          </ChartContainer>
+        )}
+      </CardContent>
+    </Card>
   )
 }
 
@@ -208,7 +543,7 @@ export default function Page() {
   const { serviceId } = useParams<{ serviceId: string }>()
 
   const [service, setService] = useState<Service | null>(null)
-  const [works, setWorks] = useState<ServiceWork[]>([])
+  const [practices, setPractices] = useState<ServicePractice[]>([])
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
 
@@ -216,6 +551,7 @@ export default function Page() {
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [modal, setModal] = useState<ModalKey>(null)
+  const [period, setPeriod] = useState<PeriodKey>("6M")
 
   const closeModal = (open: boolean) => {
     if (!open) setModal(null)
@@ -226,13 +562,20 @@ export default function Page() {
     let cancelled = false
     const loadData = async () => {
       try {
-        const [serviceData /*, worksData */] = await Promise.all([
+        const [serviceData, practicesData] = await Promise.all([
           fetchServiceById(serviceId),
-          // fetchWorksByService(serviceId),
+          loadServicePractices(serviceId).catch((error: unknown) => {
+            console.error("Errore nel caricamento delle pratiche:", error)
+            toast.error("Impossibile caricare le pratiche del servizio")
+            return [] as ServicePractice[]
+          }),
         ])
         if (cancelled) return
         setService(serviceData)
-        // setWorks(worksData || [])
+        // Sicurezza: tengo solo le pratiche di questo servizio, anche se il backend ignora il filtro
+        setPractices(
+          practicesData.filter((p) => String(p.serviceId ?? p.service?.id) === String(serviceId)),
+        )
       } catch (error) {
         console.error("Errore nel caricamento dei dati:", error)
         if (!cancelled) setNotFound(true)
@@ -248,23 +591,30 @@ export default function Page() {
 
   // ---- Statistiche derivate ----
   const stats = useMemo(() => {
-    const inProgress = works.filter((w) => w.status === "IN_PROGRESS")
-    const completed = works.filter((w) => w.status === "COMPLETED")
-    const active = works.filter((w) => w.status !== "CANCELLED")
+    const active = practices.filter((p) => !isCancelled(p))
+    const completed = active.filter(isCompleted)
+    const drafts = active.filter(isDraft)
+    const inProgress = active.filter((p) => !isCompleted(p) && !isDraft(p))
 
-    const allPayments = works.flatMap((w) =>
-      w.payments.map((p) => ({ ...p, work: w }))
-    )
-    const paid = allPayments.filter((p) => p.status === "PAID")
-    const pending = allPayments.filter((p) => p.status === "PENDING")
+    const paid: PracticeShare[] = active
+      .map((p) => ({ practice: p, amount: paidShareOf(p), orderPaidPct: orderPaidPct(p) }))
+      .filter((s) => s.amount > 0.005)
+    const pending: PracticeShare[] = active
+      .map((p) => ({ practice: p, amount: dueShareOf(p), orderPaidPct: orderPaidPct(p) }))
+      .filter((s) => s.amount > 0.005)
 
-    const totalPaid = sum(paid)
-    const totalPending = sum(pending)
-    const totalAgreed = active.reduce((acc, w) => acc + (w.amount || 0), 0)
+    const totalPaid = sum(paid.map((s) => s.amount))
+    const totalPending = sum(pending.map((s) => s.amount))
+    const totalAgreed = sum(active.map((p) => num(p.amount)))
     const completionRate = active.length ? Math.round((completed.length / active.length) * 100) : 0
     const avgValue = active.length ? totalAgreed / active.length : 0
 
+    const ctPractices = active.filter((p) => p.ctPractice)
+    const totalIncentives = sum(ctPractices.map((p) => num(p.ctPractice?.incentiveAmount)))
+
     return {
+      active,
+      drafts,
       inProgress,
       completed,
       paid,
@@ -275,8 +625,67 @@ export default function Page() {
       completionRate,
       avgValue,
       totalWorks: active.length,
+      ctCount: ctPractices.length,
+      totalIncentives,
     }
-  }, [works])
+  }, [practices])
+
+  // ---- Andamento nel periodo selezionato (per data di creazione della pratica) ----
+  const trend = useMemo(() => {
+    const config = PERIODS.find((p) => p.key === period) ?? PERIODS[1]
+    const from = periodStart(config.months)
+    const inPeriod = practices.filter(
+      (p) => !isCancelled(p) && p.createdAt && new Date(p.createdAt).getTime() >= from.getTime(),
+    )
+
+    const completed = inPeriod.filter(isCompleted)
+    const toComplete = inPeriod.filter((p) => !isCompleted(p))
+
+    // Pagamenti: pratiche con importo, "pagata" se la quota residua è nulla
+    const billable = inPeriod.filter((p) => num(p.amount) > 0)
+    const paid = billable.filter((p) => dueShareOf(p) <= 0.005)
+    const unpaid = billable.filter((p) => dueShareOf(p) > 0.005)
+    const collected = sum(billable.map((p) => paidShareOf(p)))
+    const outstanding = sum(billable.map((p) => dueShareOf(p)))
+
+    // Pratiche per mese, dal mese di inizio periodo fino a oggi
+    const monthKey = (d: Date) => d.getFullYear() * 12 + d.getMonth()
+    const byMonth = new Map<number, { completed: number; toComplete: number }>()
+    inPeriod.forEach((p) => {
+      const k = monthKey(new Date(p.createdAt))
+      const m = byMonth.get(k) ?? { completed: 0, toComplete: 0 }
+      if (isCompleted(p)) m.completed += 1
+      else m.toComplete += 1
+      byMonth.set(k, m)
+    })
+    const lastKey = Math.max(monthKey(new Date()), ...byMonth.keys())
+    const monthly: MonthBucket[] = []
+    for (let k = monthKey(from); k <= lastKey; k++) {
+      const m = byMonth.get(k) ?? { completed: 0, toComplete: 0 }
+      monthly.push({
+        key: k,
+        date: new Date(Math.floor(k / 12), k % 12, 1).toISOString(),
+        ...m,
+        total: m.completed + m.toComplete,
+      })
+    }
+
+    return {
+      label: config.description,
+      from: from.toISOString(),
+      monthly,
+      total: inPeriod.length,
+      completed,
+      toComplete,
+      completionPct: inPeriod.length ? Math.round((completed.length / inPeriod.length) * 100) : 0,
+      paid,
+      unpaid,
+      collected,
+      outstanding,
+      collectedPct:
+        collected + outstanding > 0 ? Math.round((collected / (collected + outstanding)) * 100) : 0,
+    }
+  }, [practices, period])
 
   const handleDelete = async () => {
     setIsDeleting(true)
@@ -309,7 +718,7 @@ export default function Page() {
   }
 
   const accent = service.color || undefined
-  const paidShare =
+  const paidPct =
     stats.totalPaid + stats.totalPending > 0
       ? (stats.totalPaid / (stats.totalPaid + stats.totalPending)) * 100
       : 0
@@ -396,9 +805,109 @@ export default function Page() {
             </div>
             <div className="shrink-0 sm:text-right">
               <p className="text-xs uppercase tracking-wide text-muted-foreground">Prezzo di listino</p>
-              <p className="text-2xl font-semibold">{formatEuro(service.price)}</p>
+              <p className="text-2xl font-semibold">{formatEuro(num(service.price))}</p>
             </div>
           </div>
+
+          {/* Andamento nel periodo */}
+          <section className="space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h2 className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Andamento</h2>
+                <p className="text-xs text-muted-foreground">
+                  Pratiche create dal {formatDate(trend.from)} · {trend.total} nel periodo
+                </p>
+              </div>
+              <div role="group" aria-label="Periodo" className="inline-flex rounded-lg border p-0.5">
+                {PERIODS.map((p) => (
+                  <Button
+                    key={p.key}
+                    type="button"
+                    size="sm"
+                    variant={period === p.key ? "default" : "ghost"}
+                    aria-pressed={period === p.key}
+                    onClick={() => setPeriod(p.key)}
+                  >
+                    {p.label}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <TrendCard
+                title="Completamento"
+                description="Pratiche completate e da completare"
+                chart={
+                  <RadialSummaryChart
+                    config={completionConfig}
+                    values={{ completed: trend.completed.length, toComplete: trend.toComplete.length }}
+                    keys={["completed", "toComplete"]}
+                    centerValue={`${trend.completionPct}%`}
+                    centerLabel="completate"
+                  />
+                }
+                summary={
+                  trend.total
+                    ? `${trend.completed.length} su ${trend.total} pratiche completate (${trend.label}).`
+                    : "Nessuna pratica nel periodo selezionato."
+                }
+                rows={[
+                  {
+                    label: "Completate",
+                    dot: "bg-emerald-500",
+                    value: String(trend.completed.length),
+                    onClick: () => setModal("chartCompleted"),
+                  },
+                  {
+                    label: "Da completare",
+                    dot: "bg-amber-400",
+                    value: String(trend.toComplete.length),
+                    hint: trend.toComplete.length ? "bozze incluse" : undefined,
+                    onClick: () => setModal("chartToComplete"),
+                  },
+                ]}
+              />
+
+              <TrendCard
+                title="Pagamenti"
+                description="Importi incassati e insoluti"
+                chart={
+                  <RadialSummaryChart
+                    config={paymentConfig}
+                    values={{ collected: trend.collected, outstanding: trend.outstanding }}
+                    keys={["collected", "outstanding"]}
+                    centerValue={`${trend.collectedPct}%`}
+                    centerLabel="incassato"
+                    formatValue={formatEuro}
+                  />
+                }
+                summary={
+                  trend.collected + trend.outstanding > 0
+                    ? `Incassati ${formatEuro(trend.collected)} su ${formatEuro(trend.collected + trend.outstanding)}; insoluti ${formatEuro(trend.outstanding)}.`
+                    : "Nessun importo nel periodo selezionato."
+                }
+                rows={[
+                  {
+                    label: "Pagate",
+                    dot: "bg-emerald-500",
+                    value: String(trend.paid.length),
+                    hint: "saldate",
+                    onClick: () => setModal("chartPaid"),
+                  },
+                  {
+                    label: "Insolute",
+                    dot: "bg-rose-400",
+                    value: String(trend.unpaid.length),
+                    hint: trend.unpaid.length ? `residuo ${formatEuro(trend.outstanding)}` : undefined,
+                    onClick: () => setModal("chartUnpaid"),
+                  },
+                ]}
+              />
+            </div>
+
+            <MonthlyBars data={trend.monthly} periodLabel={trend.label} />
+          </section>
 
           {/* KPI pratiche */}
           <section className="space-y-3">
@@ -420,7 +929,8 @@ export default function Page() {
                 icon={FolderOpen}
                 label="Pratiche totali"
                 value={stats.totalWorks}
-                hint={`Valore medio ${formatEuro(stats.avgValue)}`}
+                hint={`${stats.drafts.length} in bozza · valore medio ${formatEuro(stats.avgValue)}`}
+                onClick={() => setModal("all")}
               />
               <StatCard
                 icon={TrendingUp}
@@ -438,48 +948,55 @@ export default function Page() {
                 icon={Wallet}
                 label="Incassato"
                 value={formatEuro(stats.totalPaid)}
-                hint={`${stats.paid.length} pagamenti`}
+                hint={`${stats.paid.length} pratiche con incassi`}
                 onClick={() => setModal("paid")}
               />
               <StatCard
                 icon={Clock}
-                label="Pagamenti in corso"
+                label="Da incassare"
                 value={formatEuro(stats.totalPending)}
-                hint={`${stats.pending.length} da incassare`}
+                hint={`${stats.pending.length} pratiche con residuo`}
                 onClick={() => setModal("pending")}
               />
               <StatCard
                 icon={TrendingUp}
                 label="Valore pratiche"
                 value={formatEuro(stats.totalAgreed)}
-                hint="Somma degli importi concordati"
+                hint="Somma degli importi delle pratiche"
               />
               <StatCard
-                icon={Wallet}
-                label="Da fatturare"
-                value={formatEuro(Math.max(stats.totalAgreed - stats.totalPaid - stats.totalPending, 0))}
-                hint="Importi non ancora richiesti"
+                icon={Landmark}
+                label="Incentivi Conto Termico"
+                value={formatEuro(stats.totalIncentives)}
+                hint={`${stats.ctCount} pratiche CT`}
               />
             </div>
 
-            {/* Barra incassato / in corso */}
+            {/* Barra incassato / da incassare */}
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-base">Stato degli incassi</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex h-3 w-full overflow-hidden rounded-full bg-muted">
-                  <div className="h-full bg-emerald-500" style={{ width: `${paidShare}%` }} />
-                  <div className="h-full bg-amber-400" style={{ width: `${100 - paidShare}%`, opacity: stats.totalPending ? 1 : 0 }} />
+                  <div className="h-full bg-emerald-500" style={{ width: `${paidPct}%` }} />
+                  <div
+                    className="h-full bg-amber-400"
+                    style={{ width: `${100 - paidPct}%`, opacity: stats.totalPending ? 1 : 0 }}
+                  />
                 </div>
                 <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm text-muted-foreground">
                   <span className="flex items-center gap-2">
                     <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" /> Incassato {formatEuro(stats.totalPaid)}
                   </span>
                   <span className="flex items-center gap-2">
-                    <span className="h-2.5 w-2.5 rounded-full bg-amber-400" /> In corso {formatEuro(stats.totalPending)}
+                    <span className="h-2.5 w-2.5 rounded-full bg-amber-400" /> Da incassare {formatEuro(stats.totalPending)}
                   </span>
                 </div>
+                <p className="mt-3 text-xs text-muted-foreground">
+                  I pagamenti sono registrati sull&apos;ordine: qui sono ripartiti sulle pratiche in proporzione al loro
+                  importo.
+                </p>
               </CardContent>
             </Card>
           </section>
@@ -495,7 +1012,7 @@ export default function Page() {
             <dl className="divide-y">
               <InfoRow label="Codice">{service.code}</InfoRow>
               <InfoRow label="Categoria">{service.category}</InfoRow>
-              <InfoRow label="Prezzo">{formatEuro(service.price)}</InfoRow>
+              <InfoRow label="Prezzo">{formatEuro(num(service.price))}</InfoRow>
               <InfoRow label="Stato">{service.isActive ? "Attivo" : "Non attivo"}</InfoRow>
               <InfoRow label="Descrizione">{service.description}</InfoRow>
               <InfoRow label="Note">{service.notes}</InfoRow>
@@ -544,17 +1061,31 @@ export default function Page() {
           </DialogContent>
         </Dialog>
 
+        {/* Modale: tutte le pratiche */}
+        <ListModal
+          open={modal === "all"}
+          onOpenChange={closeModal}
+          title="Tutte le pratiche"
+          description={`${stats.totalWorks} pratiche (${stats.drafts.length} in bozza, escluse le annullate).`}
+          empty="Nessuna pratica per questo servizio."
+          isEmpty={stats.active.length === 0}
+        >
+          {stats.active.map((p) => (
+            <PracticeRow key={p.id} practice={p} />
+          ))}
+        </ListModal>
+
         {/* Modale: pratiche in corso */}
         <ListModal
           open={modal === "inProgress"}
           onOpenChange={closeModal}
           title="Pratiche in corso"
-          description="Pratiche di questo servizio ancora aperte."
+          description="Pratiche avviate e non ancora concluse (le bozze sono escluse)."
           empty="Nessuna pratica in corso."
           isEmpty={stats.inProgress.length === 0}
         >
-          {stats.inProgress.map((w) => (
-            <WorkRow key={w.id} work={w} />
+          {stats.inProgress.map((p) => (
+            <PracticeRow key={p.id} practice={p} />
           ))}
         </ListModal>
 
@@ -567,48 +1098,97 @@ export default function Page() {
           empty="Nessuna pratica conclusa."
           isEmpty={stats.completed.length === 0}
         >
-          {stats.completed.map((w) => (
-            <WorkRow key={w.id} work={w} />
+          {stats.completed.map((p) => (
+            <PracticeRow key={p.id} practice={p} />
           ))}
         </ListModal>
 
-        {/* Modale: pagamenti incassati */}
+        {/* Modale: incassato */}
         <ListModal
           open={modal === "paid"}
           onOpenChange={closeModal}
-          title="Pagamenti incassati"
+          title="Incassato"
           description={`Totale: ${formatEuro(stats.totalPaid)}`}
-          empty="Nessun pagamento incassato."
+          empty="Nessun importo incassato."
           isEmpty={stats.paid.length === 0}
         >
-          {stats.paid.map((p) => (
-            <div key={p.id} className="flex items-center justify-between rounded-lg border p-4">
-              <div>
-                <p className="font-medium">{p.description || p.work.title || "Pagamento"}</p>
-                <p className="mt-1 text-xs text-muted-foreground">{formatDate(p.date)}</p>
-              </div>
-              <p className="font-semibold text-emerald-600">{formatEuro(p.amount)}</p>
-            </div>
+          {stats.paid.map((s) => (
+            <ShareRow key={s.practice.id} share={s} tone="text-emerald-600" />
           ))}
         </ListModal>
 
-        {/* Modale: pagamenti in corso */}
+        {/* Modale: da incassare */}
         <ListModal
           open={modal === "pending"}
           onOpenChange={closeModal}
-          title="Pagamenti in corso"
-          description={`Da incassare: ${formatEuro(stats.totalPending)}`}
-          empty="Nessun pagamento in corso."
+          title="Da incassare"
+          description={`Residuo: ${formatEuro(stats.totalPending)}`}
+          empty="Nessun importo da incassare."
           isEmpty={stats.pending.length === 0}
         >
-          {stats.pending.map((p) => (
-            <div key={p.id} className="flex items-center justify-between rounded-lg border p-4">
-              <div>
-                <p className="font-medium">{p.description || p.work.title || "Pagamento"}</p>
-                <p className="mt-1 text-xs text-muted-foreground">Scadenza {formatDate(p.date)}</p>
-              </div>
-              <p className="font-semibold text-amber-600">{formatEuro(p.amount)}</p>
-            </div>
+          {stats.pending.map((s) => (
+            <ShareRow key={s.practice.id} share={s} tone="text-amber-600" />
+          ))}
+        </ListModal>
+
+        {/* Modali dei grafici: pratiche del periodo selezionato */}
+        <ListModal
+          open={modal === "chartCompleted"}
+          onOpenChange={closeModal}
+          title="Pratiche completate"
+          description={`${trend.completed.length} pratiche · ${trend.label}`}
+          empty="Nessuna pratica completata nel periodo."
+          isEmpty={trend.completed.length === 0}
+        >
+          {trend.completed.map((p) => (
+            <PracticeRow key={p.id} practice={p} />
+          ))}
+        </ListModal>
+
+        <ListModal
+          open={modal === "chartToComplete"}
+          onOpenChange={closeModal}
+          title="Pratiche da completare"
+          description={`${trend.toComplete.length} pratiche · ${trend.label}`}
+          empty="Nessuna pratica da completare nel periodo."
+          isEmpty={trend.toComplete.length === 0}
+        >
+          {trend.toComplete.map((p) => (
+            <PracticeRow key={p.id} practice={p} />
+          ))}
+        </ListModal>
+
+        <ListModal
+          open={modal === "chartPaid"}
+          onOpenChange={closeModal}
+          title="Pratiche pagate"
+          description={`${trend.paid.length} pratiche saldate · ${trend.label}`}
+          empty="Nessuna pratica pagata nel periodo."
+          isEmpty={trend.paid.length === 0}
+        >
+          {trend.paid.map((p) => (
+            <ShareRow
+              key={p.id}
+              share={{ practice: p, amount: paidShareOf(p), orderPaidPct: orderPaidPct(p) }}
+              tone="text-emerald-600"
+            />
+          ))}
+        </ListModal>
+
+        <ListModal
+          open={modal === "chartUnpaid"}
+          onOpenChange={closeModal}
+          title="Pratiche insolute"
+          description={`${trend.unpaid.length} pratiche con residuo (${formatEuro(trend.outstanding)}) · ${trend.label}`}
+          empty="Nessuna pratica insoluta nel periodo."
+          isEmpty={trend.unpaid.length === 0}
+        >
+          {trend.unpaid.map((p) => (
+            <ShareRow
+              key={p.id}
+              share={{ practice: p, amount: dueShareOf(p), orderPaidPct: orderPaidPct(p) }}
+              tone="text-rose-600"
+            />
           ))}
         </ListModal>
 

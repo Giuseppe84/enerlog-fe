@@ -6,7 +6,7 @@ import { fetchSubjects, fetchSubjectsByClientId } from "@/api/subjects";
 import { Subject } from "@/types/subject";
 import { Client } from "@/types/client";
 import { Button } from "@/components/ui/button"
-import {SubjectModal} from "@/components/modals/SubjectFormModal"
+import {SubjectModal} from "@/components/forms/SubjectFormModal"
 import {
   Plus,
 } from "lucide-react"

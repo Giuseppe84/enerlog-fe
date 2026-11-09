@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from 'react-i18next';
-import { Client } from './ClientFormModal';
+import { Client } from '../forms/ClientFormModal';
 
 interface DeleteClientModalProps {
   deleteDialogOpen: boolean;

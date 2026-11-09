@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Practice } from "@/types/practices";
 import {
+  TooltipProvider,
   Tooltip,
   TooltipContent,
   TooltipTrigger,
@@ -159,14 +160,16 @@ export default function PracticeDashboard({ practice }: PracticeDashboardProps) 
               </div>
               <div>  {getCadastralCategory(item.category)?.name}</div>
               <div className="flex flex-wrap gap-2">
-                <Tooltip>
+                <TooltipProvider>
+                  <Tooltip>
                   <TooltipTrigger asChild>
                     <Badge variant="outline">Cat. {getCadastralCategory(item.category)?.code}</Badge>
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>{getCadastralCategory(item.category)?.name}</p>
                   </TooltipContent>
-                </Tooltip>
+                  </Tooltip>
+                </TooltipProvider>
 
                 <Badge variant="outline">Foglio {item.sheet}</Badge>
                 <Badge variant="outline">Part. {item.parcel}</Badge>

@@ -25,7 +25,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ServiceItem } from './ServiceItem';
 import { Edit, Trash2, Search, UserPlus } from 'lucide-react';
-import { ServiceModal } from "@/components/modals/ServiceFormModal"
+import { ServiceModal } from "@/components/forms/ServiceFormModal"
 
 
 

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { it } from "zod/locales"
+
 import { newTagSchema } from "./tagSchema";
 /**
  * Base fields shared between create & update
@@ -20,6 +21,8 @@ const baseServiceSchema = {
     .trim()
     .min(3)
     .max(100),
+  type: z.string(),
+
   notes: z
     .string()
     .trim()

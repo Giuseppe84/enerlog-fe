@@ -20,7 +20,7 @@ import { Input } from '@/components/ui/input';
 import { format } from 'date-fns';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PropertyFormModal } from "@/components/modals/PropertyFormModal";
+import { PropertyFormModal } from "@/components/forms/PropertyFormModal";
 
 
 import { fetchProperties, deleteProperty } from '@/api/properties';

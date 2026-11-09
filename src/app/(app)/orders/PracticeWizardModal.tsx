@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dialog"
 import type { Service } from "@/types/service"
 import { toArray } from "./new/WizardParts"
-import { PropertyFormModal } from "@/components/modals/PropertyFormModal"
+import { PropertyFormModal } from "@/components/forms/PropertyFormModal"
 import type { Property } from "@/types/property";
 
 

@@ -22,7 +22,7 @@ import { Search, UserPlus } from 'lucide-react';
 
 import { fetchClients } from '@/api/clients';
 
-import { ClientFormModal } from '@/components/modals/ClientFormModal';
+import { ClientFormModal } from '@/components/forms/ClientFormModal';
 import { DeleteClientModal } from '@/components/modals/DeleteClientModal';
 
 import type { Client } from '@/types/client'

@@ -32,7 +32,7 @@ import { Edit, Trash2, Search, UserPlus } from 'lucide-react';
 
 import { useParams, useRouter } from "next/navigation";
 import PracticeDetailPage from './PracticeDetail';
-import { CTPracticeDialog } from '@/components/modals/PracticeFormModal'
+import { CTPracticeDialog } from '@/components/forms/PracticeFormModal'
 import { generate } from '@/api/ai'
 //import SearchWithFilters from "./PracticeSearchFilters"
 
