@@ -5,7 +5,8 @@ import {
   FileUser,
   HandPlatter,
   Receipt,
-  ListCheck
+  ListCheck,
+  HandCoins
 } from "lucide-react"
 import { NavMain } from "@/components/sidebar/nav-main"
 import { NavEntities } from "@/components/sidebar/nav-entities"
@@ -45,6 +46,11 @@ const data = {
       name: "Pratiche",
       url: "/practices",
       icon: ListCheck,
+    },
+                {
+      name: "Pagamenti",
+      url: "/payments",
+      icon: HandCoins,
     },
   ]
 }

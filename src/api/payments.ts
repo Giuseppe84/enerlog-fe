@@ -13,10 +13,13 @@ export const fetchPaymentById = async (id: string) => {
 export const createOrUpdatePayment = async (payment: {
   id?: string;
   isRefund: boolean;
-  paymentMethod: string;
-  paymentStatus: string;
+  method: string;
+  status: string;
   clientId?: string;
-  workPayments: { workId: string; amountPaid: number; }[];
+  orderId: string;
+  date: string;
+  amount: number;
+
 }) => {
   let response;
   if (payment.id) {

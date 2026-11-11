@@ -14,7 +14,7 @@ export interface Order {
 
   totalAmount: string; // Decimal(10,2)
   paidAmount: string;  // Decimal(10,2)
-
+paymentCompleted: boolean;
   clientId: string;
   client?: Client;
 
@@ -67,7 +67,7 @@ export type OrderCardProps = {
 
     totalAmount: string; // Decimal(10,2)
     paidAmount: string;  // Decimal(10,2)
-
+    paymentCompleted: boolean;
     clientId: string;
     client?: Client;
 
